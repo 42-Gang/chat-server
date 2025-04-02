@@ -1,1 +1,1 @@
-# fastify-boilerplate
+# Chat Server
