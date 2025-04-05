@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 
 import ChatController from './chat.controller.js';
 import { getMessagesParamsSchema, getMessagesResponseSchema } from './schemas/getMessages.schema.js';
-import { addRoutes, Route } from 'src/plugins/router.js';
+import { addRoutes, Route } from '../../plugins/router.js';
 
 export default async function chatRoutes(fastify: FastifyInstance) {
     const chatController: ChatController = fastify.diContainer.resolve('chatController');
@@ -20,7 +20,6 @@ export default async function chatRoutes(fastify: FastifyInstance) {
                         200: getMessagesResponseSchema,
                     },
                 },
-                auth: false,
             },
         },
     ]

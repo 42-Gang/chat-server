@@ -1,12 +1,14 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import ChatService from "./chat.service.js";
-import { getMessagesResponseSchema } from "./schemas/getMessages.schema.js";
+import { getMessagesParamsSchema } from "./schemas/getMessages.schema.js";
 
 export default class ChatController {
     constructor(private readonly chatService: ChatService) {}
 
+
     loadMessages = async (request: FastifyRequest, reply: FastifyReply) => {
-        const params = getMessagesResponseSchema.parse(request.params);
-        const result = await this.chatService.loadMessages()
-    }
+        const params = getMessagesParamsSchema.parse(request.params);
+        const result = await this.chatService.loadMessages(params.room_id);
+        reply.code(200).send(result);
+    };
 }

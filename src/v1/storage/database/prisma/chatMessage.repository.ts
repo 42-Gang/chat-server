@@ -23,4 +23,8 @@ export default class ChatMessageRepositoryPrisma implements ChatMessageRepositor
   update(id: number, data: Prisma.ChatMessageUpdateInput): Promise<ChatMessage> {
     return this.prisma.chatMessage.update({ where: { id }, data });
   }
+
+  findByRoomId(room_id: number): Promise<ChatMessage[]> {
+    return this.prisma.chatMessage.findMany({ where: { room_id }, orderBy: { time: 'asc'}, });
+  }
 }
