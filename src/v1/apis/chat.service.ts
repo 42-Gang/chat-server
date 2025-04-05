@@ -5,6 +5,7 @@ import ChatMessageRepositoryInterface from '../storage/database/prisma/chatMessa
 import { ChatMessage } from '@prisma/client';
 import { STATUS } from '../common/constants/status.js';
 import { NotFoundException, UnAuthorizedException } from '../common/exceptions/core.error.js';
+import { gotClient } from 'src/plugins/http.client.js';
 
 export default class ChatService {
   constructor(
@@ -12,10 +13,26 @@ export default class ChatService {
     private readonly chatMessageRepository: ChatMessageRepositoryInterface,
     private readonly chatRoomRepository: ChatRoomRepositoryInterface,
   ) {}
+
   private messagesToResponse(messages: ChatMessage) {
+//     const result = await gotClient.request<
+//         // 여기에 타입 추가
+//     >({
+//       method: 'POST',
+//       url: '',
+//       body: {
+//         userId: 1,
+//         id: 3,
+//         title: 'jungslee ',
+//         body: 'new post',
+//       },
+//     });
+
+//     const nickname = result.data.nickname;
+
     return {
       id: messages.id,
-      nickname: 'test',
+      nickname: "test",
       time: new Date(messages.time),
       message: messages.contents,
     };
