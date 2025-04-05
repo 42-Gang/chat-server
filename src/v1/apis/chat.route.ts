@@ -20,6 +20,7 @@ export default async function chatRoutes(fastify: FastifyInstance) {
                         200: getMessagesResponseSchema,
                     },
                 },
+                auth: true,
             },
         },
     ]

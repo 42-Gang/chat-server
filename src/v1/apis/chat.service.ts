@@ -1,13 +1,14 @@
 // import ChatRoomRepositoryInterface from "../storage/database/interfaces/chatRoom.repository.interface.js";
-// import ChatJoinListRepositoryInterface from "../storage/database/prisma/chatJoinList.repository.js";
+import ChatJoinListRepositoryInterface from "../storage/database/prisma/chatJoinList.repository.js";
 import ChatMessageRepositoryInterface from "../storage/database/prisma/chatMessage.repository.js";
 
 import { ChatMessage } from "@prisma/client";
 import { STATUS } from "../common/constants/status.js";
+import { UnAuthorizedException } from "../common/exceptions/core.error.js";
 
 export default class ChatService {
     constructor(
-        // private readonly chatJoinListRepository: ChatJoinListRepositoryInterface,
+        private readonly chatJoinListRepository: ChatJoinListRepositoryInterface,
         private readonly chatMessageRepository: ChatMessageRepositoryInterface,
         // private readonly chatRoomRepository: ChatRoomRepositoryInterface
     ) {}
@@ -20,36 +21,25 @@ export default class ChatService {
         };
       }
     
-    async loadMessages(roomId: number) {
+    async loadMessages(roomId: number, userId: number | undefined) {
         const messages = await this.chatMessageRepository.findByRoomId(roomId);
-        const response = messages.map((item) => this.messagesToResponse(item));
+        const members = await this.chatJoinListRepository.findByRoomId(roomId);
 
+        console.log("userId", userId);
+        console.log("members", members);
+
+        if (!members.some((user) => user.user_id === userId))
+            throw new UnAuthorizedException("사용자가 포함된 채팅방이 아닙니다.");
+
+        if (messages.length === 0)
+            return ;
+
+        const response = messages.map((item) => this.messagesToResponse(item));
         return {
             status: STATUS.SUCCESS,
             data: {
                 chat_history: response,
             },
         };
-        
-        // const messages = [
-        //     {
-        //       id: 1,
-        //       nickname: '유저A',
-        //       time: new Date("2024-04-05T12:00:00.000Z"),
-        //       message: '안녕하세요~',
-        //     },
-        //     {
-        //       id: 2,
-        //       nickname: 'user123',
-        //       time: new Date("2024-04-05T12:00:00.000Z"),
-        //       message: '반갑습니다!',
-        //     },
-        //     {
-        //       id: 3,
-        //       nickname: '테스터',
-        //       time: new Date("2024-04-05T12:00:00.000Z"),
-        //       message: '채팅방 테스트 중입니다.',
-        //     },
-        //   ];
     }
 }

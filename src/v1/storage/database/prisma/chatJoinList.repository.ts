@@ -23,4 +23,8 @@ export default class ChatJoinListRepositoryPrisma implements ChatJoinListReposit
   update(id: number, data: Prisma.ChatJoinListUpdateInput): Promise<ChatJoinList> {
     return this.prisma.chatJoinList.update({ where: { id }, data });
   }
+
+  findByRoomId(room_id: number): Promise<ChatJoinList[]> {
+    return this.prisma.chatJoinList.findMany({ where: { room_id } });
+  }
 }
