@@ -43,6 +43,7 @@ export default tseslint.config(
       // ✅ indent 관련 규칙은 Prettier가 처리하므로 끔
       indent: 'off',
       '@typescript-eslint/indent': 'off',
+      '@typescript-eslint/no-empty-object-type': 'off',
 
       // ✅ 사용하지 않는 변수 관련 규칙
       '@typescript-eslint/no-unused-vars': [

@@ -7,15 +7,33 @@ datasource db {
   url      = env("DB_URL")
 }
 
-model User {
-  id                   Int      @id @default(autoincrement())
-  name             String   @unique
-  email                String   @unique
-  password_hash        String
-  avatar_url           String?
-  two_factor_enabled   Boolean  @default(false)
-  created_at           DateTime @default(now())
-  updated_at           DateTime @updatedAt
+enum ChatRoomType {
+  PRIVATE
+  GROUP
+}
 
-  @@map("User")
+model ChatRoom {
+  id   Int          @id @default(autoincrement())
+  type ChatRoomType
+
+  messages ChatMessage[]  @relation("RoomMessages")
+  members  ChatJoinList[] @relation("RoomJoins")
+}
+
+model ChatMessage {
+  id       Int      @id @default(autoincrement())
+  room_id  Int
+  user_id  Int
+  contents String
+  time     DateTime
+
+  room ChatRoom @relation(fields: [room_id], references: [id], name: "RoomMessages")
+}
+
+model ChatJoinList {
+  id      Int @id @default(autoincrement())
+  room_id Int
+  user_id Int
+
+  room ChatRoom @relation(fields: [room_id], references: [id], name: "RoomJoins")
 }
