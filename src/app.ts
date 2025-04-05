@@ -26,7 +26,7 @@ function setMiddleware(fastify: FastifyInstance) {
   fastify.addHook('onRequest', (request, reply, done) => {
     const authenticated = request.headers['x-authenticated'];
     const userId = request.headers['x-user-id'];
-    
+
     if (authenticated === undefined || Array.isArray(authenticated)) {
       request.authenticated = false;
       request.userId = undefined;
@@ -38,7 +38,7 @@ function setMiddleware(fastify: FastifyInstance) {
       request.userId = undefined;
       done();
     }
-    
+
     if (isNaN(Number(userId))) {
       request.authenticated = false;
       request.userId = undefined;
@@ -47,7 +47,7 @@ function setMiddleware(fastify: FastifyInstance) {
 
     if (authenticated === 'true') {
       request.authenticated = true;
-      request.userId = parseInt(userId as string , 10);
+      request.userId = parseInt(userId as string, 10);
     }
 
     done();
