@@ -13,8 +13,8 @@ enum ChatRoomType {
 }
 
 model ChatRoom {
-  id   Int          @id @default(autoincrement())
-  type ChatRoomType
+  id       Int            @id @default(autoincrement())
+  type     ChatRoomType
 
   messages ChatMessage[]  @relation("RoomMessages")
   members  ChatJoinList[] @relation("RoomJoins")
@@ -22,18 +22,18 @@ model ChatRoom {
 
 model ChatMessage {
   id       Int      @id @default(autoincrement())
-  room_id  Int
-  user_id  Int
+  roomId   Int      @map("room_id")
+  userId   Int      @map("user_id")
   contents String
   time     DateTime
 
-  room ChatRoom @relation(fields: [room_id], references: [id], name: "RoomMessages")
+  room ChatRoom @relation(fields: [roomId], references: [id], name: "RoomMessages")
 }
 
 model ChatJoinList {
-  id      Int @id @default(autoincrement())
-  room_id Int
-  user_id Int
+  id     Int @id @default(autoincrement())
+  roomId Int @map("room_id")
+  userId Int @map("user_id")
 
-  room ChatRoom @relation(fields: [room_id], references: [id], name: "RoomJoins")
+  room ChatRoom @relation(fields: [roomId], references: [id], name: "RoomJoins")
 }

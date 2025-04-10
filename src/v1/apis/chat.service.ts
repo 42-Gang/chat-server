@@ -39,7 +39,7 @@ export default class ChatService {
     return {
       status: STATUS.SUCCESS,
       data: {
-        chat_history: response,
+        chatHistory: response,
       },
     };
   }

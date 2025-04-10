@@ -12,7 +12,7 @@ export default async function chatRoutes(fastify: FastifyInstance) {
   const routes: Array<Route> = [
     {
       method: 'GET',
-      url: '/:room_id/messages',
+      url: '/:roomId/messages',
       handler: chatController.loadMessages,
       options: {
         schema: {
