@@ -9,6 +9,7 @@ export async function socketMiddleware(socket: Socket, next: NextFunction) {
   try {
     const token = socket.handshake.query.token;
     if (!token || token === '' || Array.isArray(token)) {
+      console.log(socket.handshake.query);
       return next(new BadRequestException('유효하지 않은 토큰 형식입니다.'));
     }
 

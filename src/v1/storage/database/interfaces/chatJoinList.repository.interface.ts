@@ -7,5 +7,6 @@ export default interface ChatJoinListRepositoryInterface
     Prisma.ChatJoinListCreateInput,
     Prisma.ChatJoinListUpdateInput
   > {
-  findByRoomId(room_id: number): Promise<ChatJoinList[]>;
+  findManyByRoomId(roomId: number): Promise<ChatJoinList[]>;//findMany로 명시
+  findManyByUserId(userId: number): Promise<ChatJoinList[]>;
 }

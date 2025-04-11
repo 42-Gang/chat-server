@@ -6,7 +6,6 @@ datasource db {
   provider = "mysql"
   url      = env("DB_URL")
 }
-
 enum ChatRoomType {
   PRIVATE
   GROUP
@@ -18,6 +17,8 @@ model ChatRoom {
 
   messages ChatMessage[]  @relation("RoomMessages")
   members  ChatJoinList[] @relation("RoomJoins")
+
+  @@map("chat_room")
 }
 
 model ChatMessage {
@@ -28,6 +29,8 @@ model ChatMessage {
   time     DateTime
 
   room ChatRoom @relation(fields: [roomId], references: [id], name: "RoomMessages")
+
+  @@map("chat_message")
 }
 
 model ChatJoinList {
@@ -36,4 +39,6 @@ model ChatJoinList {
   userId Int @map("user_id")
 
   room ChatRoom @relation(fields: [roomId], references: [id], name: "RoomJoins")
+
+  @@map("chat_join_list")
 }
