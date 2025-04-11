@@ -15,9 +15,6 @@ model ChatRoom {
   id       Int            @id @default(autoincrement())
   type     ChatRoomType
 
-  messages ChatMessage[]  @relation("RoomMessages")
-  members  ChatJoinList[] @relation("RoomJoins")
-
   @@map("chat_room")
 }
 
@@ -28,8 +25,6 @@ model ChatMessage {
   contents String
   time     DateTime
 
-  room ChatRoom @relation(fields: [roomId], references: [id], name: "RoomMessages")
-
   @@map("chat_message")
 }
 
@@ -38,7 +33,6 @@ model ChatJoinList {
   roomId Int @map("room_id")
   userId Int @map("user_id")
 
-  room ChatRoom @relation(fields: [roomId], references: [id], name: "RoomJoins")
-
   @@map("chat_join_list")
+  @@unique([userId, roomId])
 }

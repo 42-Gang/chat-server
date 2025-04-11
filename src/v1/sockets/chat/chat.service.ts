@@ -5,20 +5,23 @@ import { ResponseMessage } from "./chat.schema.js";
 export default class ChatService {
     constructor() {}
 
-    /*친구 됐을 때*/
-    async createChatRoom(userId: number) {
+    async createChatRoom(userAId: number, userBId: number) {
       const room = await dependencies.chatRoomRepository.create({ 
-        type: 'PRIVATE',  
+        type: 'PRIVATE',
       });
 
       await dependencies.chatJoinListRepository.create({ 
         roomId: room.id,
-        userId: userId,
+        userId: userAId,
       });
+      await dependencies.chatJoinListRepository.create({ 
+        roomId: room.id,
+        userId: userBId,
+      });
+      
       return room;
     }
 
-    /*로그인 했을 때*/
     async joinPersonalRoom(socket: Socket, userId: number) {
       socket.join(`user:${userId}`);
       // redis에 저장하는 로직 추가
@@ -31,9 +34,8 @@ export default class ChatService {
             socket.join(`room:${room.roomId}`);
           });
         }
-
         //redis에 저장하는 로직 추가
-    } //로그인 했을 때 내가 속한 채팅방에 join
+    }
 
     async saveMessage(data : ResponseMessage) {
       await dependencies.chatMessageRepository.create({
@@ -43,8 +45,9 @@ export default class ChatService {
         time: data.time,
       })
     }
-    // 채팅 받았을 때
-    // 채팅 보낼 때
-    //친구 됐을 때
-    //블록 됐을 때
+
+    async leaveRoom(socket: Socket, roomId: number) {
+      socket.leave(`room:${roomId}`);
+      console.log(`🟡 ${socket.id} left room:${roomId}`);
+    }
 }

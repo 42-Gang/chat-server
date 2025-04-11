@@ -11,4 +11,3 @@ export default async function chatNamespace(namespace: Namespace) {
     handleConnection(socket, namespace, chatService),
   );
 }
-//채팅 보내기 전에 채팅방에 포함된 사용자인지 확인하는 로직 추가

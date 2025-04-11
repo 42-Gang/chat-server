@@ -1,10 +1,10 @@
-import prisma from "src/plugins/prisma.js";
-import ChatJoinListRepositoryInterface from "src/v1/storage/database/interfaces/chatJoinList.repository.interface.js";
-import ChatMessageRepositoryInterface from "src/v1/storage/database/interfaces/chatMessage.repository.interface.js";
-import ChatRoomRepositoryInterface from "src/v1/storage/database/interfaces/chatRoom.repository.interface.js";
-import ChatJoinListRepositoryPrisma from "src/v1/storage/database/prisma/chatJoinList.repository.js";
-import ChatMessageRepositoryPrisma from "src/v1/storage/database/prisma/chatMessage.repository.js";
-import ChatRoomRepositoryPrisma from "src/v1/storage/database/prisma/chatRoom.repository.js";
+import prisma from "../../../plugins/prisma.js";
+import ChatJoinListRepositoryInterface from "../../storage/database/interfaces/chatJoinList.repository.interface.js";
+import ChatMessageRepositoryInterface from "../../storage/database/interfaces/chatMessage.repository.interface.js";
+import ChatRoomRepositoryInterface from "../../storage/database/interfaces/chatRoom.repository.interface.js";
+import ChatJoinListRepositoryPrisma from "../../storage/database/prisma/chatJoinList.repository.js";
+import ChatMessageRepositoryPrisma from "../../storage/database/prisma/chatMessage.repository.js";
+import ChatRoomRepositoryPrisma from "../../storage/database/prisma/chatRoom.repository.js";
 
 export const dependencies: {
     chatJoinListRepository: ChatJoinListRepositoryInterface;
