@@ -1,5 +1,6 @@
 import { Socket } from "socket.io";
 import { dependencies } from "./chat.dependencies.js";
+import { ResponseMessage } from "./chat.schema.js";
 
 export default class ChatService {
     constructor() {}
@@ -34,11 +35,16 @@ export default class ChatService {
         //redis에 저장하는 로직 추가
     } //로그인 했을 때 내가 속한 채팅방에 join
 
+    async saveMessage(data : ResponseMessage) {
+      await dependencies.chatMessageRepository.create({
+        roomId: data.roomId,
+        userId: data.userId,
+        contents: data.contents,
+        time: data.time,
+      })
+    }
     // 채팅 받았을 때
     // 채팅 보낼 때
     //친구 됐을 때
     //블록 됐을 때
-
-    
-
 }

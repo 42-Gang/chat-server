@@ -1,6 +1,6 @@
 import { Namespace, Socket } from 'socket.io';
 import ChatService from './chat.service.js';
-import { messageSchema } from './chat.schema.js';
+import { requestMessageSchema, ResponseMessage, responseMessageSchema } from './chat.schema.js';
 
 export async function handleConnection(
   socket: Socket,
@@ -28,29 +28,27 @@ export async function handleConnection(
 }
 
 
-export function registerSocketEvents(socket, chatService) {
+export function registerSocketEvents(socket : Socket, chatService : ChatService) {
   const userId = socket.data.userId;
 
   socket.on('send_message', async (payload) => {
     try {
-      const parsed = messageSchema.parse(payload);
+      const parsed = requestMessageSchema.parse(payload);
       const { roomId, contents } = parsed;
-
-      await chatService.saveMessage({ roomId, userId, contents });
-
-      socket.to(`room:${roomId}`).emit('receive_message', {
+  
+      const messageData: ResponseMessage = responseMessageSchema.parse({
         roomId,
         userId,
         contents,
         time: new Date().toISOString(),
       });
+  
+      await chatService.saveMessage(messageData);
+  
+      socket.to(`room:${roomId}`).emit('receive_message', messageData);
     } catch (e) {
       console.error('❌ 메시지 파싱 실패:', e);
       socket.emit('error_message', { message: '메시지 포맷 오류' });
     }
-  });
-
-  socket.on('disconnect', () => {
-    console.log(`🔴 [/chat] Disconnected: ${socket.id}`);
   });
 }
