@@ -7,7 +7,7 @@ export async function handleConnection(
   chatService: ChatService,
 ) {
   try {
-    const userId = socket.data.userId;
+    const userId = socket.data.userId;//왜 Number로 바꿔줘야 하지?
     console.log(`🟢 [/chat] Connected: ${socket.id}, ${userId}`);
 
     //유저 개개인의 룸에 join

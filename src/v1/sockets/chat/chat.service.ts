@@ -16,9 +16,6 @@ export default class ChatService {
       });
       return room;
     }
-    // async createChatRoom(name: string, userId: number) {
-
-    // }
 
     /*로그인 했을 때*/
     async joinPersonalRoom(socket: Socket, userId: number) {
@@ -31,13 +28,13 @@ export default class ChatService {
         if (chatRooms) {
           chatRooms.forEach((room) => {
             socket.join(`room:${room.roomId}`);
-            socket.to(`room:${room.roomId}`).emit('join', "Hello!" + userId);
           });
         }
 
         //redis에 저장하는 로직 추가
     } //로그인 했을 때 내가 속한 채팅방에 join
 
+    async 
     // 채팅 받았을 때
     // 채팅 보낼 때
     //친구 됐을 때

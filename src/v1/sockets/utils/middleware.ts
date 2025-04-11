@@ -9,7 +9,6 @@ export async function socketMiddleware(socket: Socket, next: NextFunction) {
   try {
     const token = socket.handshake.query.token;
     if (!token || token === '' || Array.isArray(token)) {
-      console.log(socket.handshake.query);
       return next(new BadRequestException('유효하지 않은 토큰 형식입니다.'));
     }
 
@@ -17,7 +16,7 @@ export async function socketMiddleware(socket: Socket, next: NextFunction) {
     if (!isVerified) return next(new UnAuthorizedException('인증되지 않은 사용자입니다.'));
 
     const { id } = decodeJwtPayload(token);
-    socket.data.userId = id;
+    socket.data.userId = Number(id);
     next();
   } catch (e) {
     console.error('Socket middleware error:', e);
