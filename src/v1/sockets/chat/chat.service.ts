@@ -34,7 +34,6 @@ export default class ChatService {
         //redis에 저장하는 로직 추가
     } //로그인 했을 때 내가 속한 채팅방에 join
 
-    async 
     // 채팅 받았을 때
     // 채팅 보낼 때
     //친구 됐을 때
