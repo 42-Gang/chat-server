@@ -6,6 +6,7 @@ datasource db {
   provider = "mysql"
   url      = env("DB_URL")
 }
+
 enum ChatRoomType {
   PRIVATE
   GROUP

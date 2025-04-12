@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient, ChatRoom } from '@prisma/client';
+import { Prisma, PrismaClient, ChatRoom, ChatRoomType } from '@prisma/client';
 import ChatRoomRepositoryInterface from '../interfaces/chatRoom.repository.interface.js';
 
 export default class ChatRoomRepositoryPrisma implements ChatRoomRepositoryInterface {
@@ -22,5 +22,10 @@ export default class ChatRoomRepositoryPrisma implements ChatRoomRepositoryInter
 
   update(id: number, data: Prisma.ChatRoomUpdateInput): Promise<ChatRoom> {
     return this.prisma.chatRoom.update({ where: { id }, data });
+  }
+
+  async getRoomType(id: number): Promise<ChatRoomType> {
+    const room = await this.prisma.chatRoom.findUniqueOrThrow({where: { id },select: { type: true },});
+    return room.type;
   }
 }

@@ -8,6 +8,6 @@ export default async function chatNamespace(namespace: Namespace) {
 
   const chatService = new ChatService();
   namespace.on('connection', (socket) =>
-    handleConnection(socket, namespace, chatService),
+    handleConnection(socket, chatService),
   );
 }

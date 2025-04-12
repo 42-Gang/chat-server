@@ -1,0 +1,21 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/api/v1/friends/status",
+    "queryParameters": {
+      "user_id": { "equalTo": "123456" },
+      "friend_id": { "equalTo": "876543" }
+    }
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "data": {
+        "status": "BLOCKED"
+      }
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
