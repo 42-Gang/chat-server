@@ -69,7 +69,7 @@ async function handleIncomingMessage(
     if (!isBlocked) {
       await chatService.saveMessage(messageData);
     }
-    
+
     // TODO: Kafka로 메시지 전송
   } catch (e) {
     console.error('❌ 메시지 처리 실패:', e);
