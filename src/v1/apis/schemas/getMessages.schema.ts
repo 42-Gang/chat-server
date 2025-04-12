@@ -9,5 +9,5 @@ export const getMessagesResponseSchema = createResponseSchema(
 );
 
 export const getMessagesParamsSchema = z.object({
-  roomId: z.preprocess((val) => Number(val), z.number()).default(150),
+  roomId: z.preprocess((val) => Number(val), z.number()),
 });
