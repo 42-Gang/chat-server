@@ -25,7 +25,10 @@ export default class ChatRoomRepositoryPrisma implements ChatRoomRepositoryInter
   }
 
   async getRoomType(id: number): Promise<ChatRoomType> {
-    const room = await this.prisma.chatRoom.findUniqueOrThrow({where: { id },select: { type: true },});
+    const room = await this.prisma.chatRoom.findUniqueOrThrow({
+      where: { id },
+      select: { type: true },
+    });
     return room.type;
   }
 }

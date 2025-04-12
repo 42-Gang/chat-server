@@ -37,6 +37,6 @@ export default class ChatJoinListRepositoryPrisma implements ChatJoinListReposit
   }
 
   findByUserIdAndRoomId(userId: number, roomId: number): Promise<ChatJoinList | null> {
-    return this.prisma.chatJoinList.findUnique({ where: { userId_roomId: { userId, roomId, },}, });
+    return this.prisma.chatJoinList.findUnique({ where: { userId_roomId: { userId, roomId } } });
   }
 }

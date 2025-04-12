@@ -7,5 +7,5 @@ export default interface ChatRoomRepositoryInterface
     Prisma.ChatRoomCreateInput,
     Prisma.ChatRoomUpdateInput
   > {
-    getRoomType(id: number): Promise<ChatRoomType>;
-  }
+  getRoomType(id: number): Promise<ChatRoomType>;
+}
