@@ -1,23 +1,23 @@
-import { Namespace, Socket } from 'socket.io';
+import { Socket } from 'socket.io';
 import ChatService from './chat.service.js';
 import { requestMessageSchema, ResponseMessage, responseMessageSchema } from './chat.schema.js';
 import { dependencies } from './chat.dependencies.js';
-import { ForbiddenException } from 'src/v1/common/exceptions/core.error.js';
+import { ForbiddenException } from '../../../v1/common/exceptions/core.error.js';
 
 export async function handleConnection(
   socket: Socket,
-  namespace: Namespace,
   chatService: ChatService,
 ) {
   try {
     const userId = socket.data.userId;
     console.log(`🟢 [/chat] Connected: ${socket.id}, ${userId}`);
 
-    await chatService.joinPersonalRoom(socket, userId);
-    await chatService.joinChatRooms(socket, userId);
-    //함수 chatService 클래스에 두지 말고 분리하기
+    await joinPersonalRoom(socket, userId);
+    await joinChatRooms(socket, userId);
     
-    setupChatHandlers(socket, chatService);
+    socket.on('message', (payload) =>
+      handleIncomingMessage(socket, chatService, userId, payload)
+    );
     
     socket.on('disconnect', async () => {
       console.log(`🔴 [/status] Disconnected: ${socket.id}`);
@@ -27,34 +27,54 @@ export async function handleConnection(
   }
 }
 
+async function handleIncomingMessage(
+  socket: Socket,
+  chatService: ChatService,
+  userId: number,
+  payload: unknown
+) {
+  try {
+    const parsed = requestMessageSchema.parse(payload);
+    const { roomId, contents } = parsed;
 
-export function setupChatHandlers(socket : Socket, chatService : ChatService) {
-  const userId = socket.data.userId;
+    const messageData: ResponseMessage = responseMessageSchema.parse({
+      roomId,
+      userId,
+      contents,
+      time: new Date().toISOString(),
+    });
 
-  socket.on('send_message', async (payload) => {
-    try {
-      const parsed = requestMessageSchema.parse(payload);
-      const { roomId, contents } = parsed;
-  
-      const messageData: ResponseMessage = responseMessageSchema.parse({
-        roomId,
-        userId,
-        contents,
-        time: new Date().toISOString(),
-      });
+    const isJoined = await dependencies.chatJoinListRepository.findByUserIdAndRoomId(
+      userId,
+      roomId
+    );
 
-      if (!dependencies.chatJoinListRepository.findByUserIdAndRoomId(messageData.userId, messageData.roomId)) {
-        throw new ForbiddenException("채팅방에 포함되어있지 않는 사용자입니다.");
-      }
-
-      //blocked되어있는 상태이면 저장하지 말기
-      await chatService.saveMessage(messageData);
-  
-      socket.to(`room:${roomId}`).emit('receive_message', messageData);
-      //kafka producer로 메시지 보내는 로직 추가
-    } catch (e) {
-      console.error('❌ 메시지 파싱 실패:', e);
-      socket.emit('error_message', { message: '메시지 포맷 오류' });
+    if (!isJoined) {
+      throw new ForbiddenException('채팅방에 포함되어있지 않는 사용자입니다.');
     }
-  });
+
+    await chatService.saveMessage(messageData);
+
+    socket.to(`room:${roomId}`).emit('message', messageData);
+
+    // TODO: Kafka로 메시지 전송
+  } catch (e) {
+    console.error('❌ 메시지 처리 실패:', e);
+    socket.emit('error_message', { message: '메시지 포맷 오류 또는 권한 문제' });
+  }
+}
+
+async function joinPersonalRoom(socket: Socket, userId: number) {
+  socket.join(`user:${userId}`);
+  // redis에 저장하는 로직 추가
+}
+
+async function joinChatRooms(socket: Socket, userId: number) {
+    const chatRooms = await dependencies.chatJoinListRepository.findManyByUserId(userId);
+    if (chatRooms) {
+      chatRooms.forEach((room) => {
+        socket.join(`room:${room.roomId}`);
+      });
+    }
+    //redis에 저장하는 로직 추가
 }

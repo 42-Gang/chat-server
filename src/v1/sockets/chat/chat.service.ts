@@ -22,21 +22,6 @@ export default class ChatService {
       return room;
     }
 
-    async joinPersonalRoom(socket: Socket, userId: number) {
-      socket.join(`user:${userId}`);
-      // redis에 저장하는 로직 추가
-    }
-
-    async joinChatRooms(socket: Socket, userId: number) {
-        const chatRooms = await dependencies.chatJoinListRepository.findManyByUserId(userId);
-        if (chatRooms) {
-          chatRooms.forEach((room) => {
-            socket.join(`room:${room.roomId}`);
-          });
-        }
-        //redis에 저장하는 로직 추가
-    }
-
     async saveMessage(data : ResponseMessage) {
       await dependencies.chatMessageRepository.create({
         roomId: data.roomId,
