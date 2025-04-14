@@ -31,8 +31,7 @@ async function handleIncomingMessage(
   payload: unknown,
 ) {
   try {
-    const parsed = requestMessageSchema.parse(payload);
-    const { roomId, contents } = parsed;
+    const { roomId, contents } = requestMessageSchema.parse(payload);
 
     const messageData: ResponseMessage = responseMessageSchema.parse({
       roomId,
@@ -46,25 +45,23 @@ async function handleIncomingMessage(
       dependencies.chatJoinListRepository.findManyByRoomId(roomId),
     ]);
 
-    const isUserInRoom = members.some((join) => join.userId === userId);
+    const isUserInRoom = members.some((member) => member.userId === userId);
     if (!isUserInRoom) {
       throw new ForbiddenException('이 채팅방에 참여하지 않은 사용자입니다');
     }
 
     socket.to(`room:${roomId}`).emit('message', messageData);
 
-    if (roomType === ChatRoomType.GROUP) return;
+    if (roomType === ChatRoomType.PRIVATE) {
+      const otherUserId = members.find((join) => join.userId !== userId)?.userId;
+      if (!otherUserId) {
+        throw new Error('상대방을 찾을 수 없습니다 (1:1 채팅방 아님)');
+      }
 
-    const otherUserId = members.find((join) => join.userId !== userId)?.userId;
-    if (!otherUserId) {
-      throw new Error('상대방을 찾을 수 없습니다 (1:1 채팅방 아님)');
+      const isBlocked = await checkBlockStatus(otherUserId, userId);
+      if (isBlocked) return;
     }
-
-    const isBlocked = await checkBlockStatus(otherUserId, userId);
-    if (!isBlocked) {
-      await chatService.saveMessage(messageData);
-    }
-
+    await chatService.saveMessage(messageData);
     // TODO: Kafka로 메시지 전송
   } catch (e) {
     console.error('❌ 메시지 처리 실패:', e);
