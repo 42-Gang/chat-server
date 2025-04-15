@@ -5,7 +5,6 @@ import { dependencies } from './chat.dependencies.js';
 import { ForbiddenException } from '../../../v1/common/exceptions/core.error.js';
 import { checkBlockStatus } from './chat.client.js';
 import { ChatRoomType } from '@prisma/client';
-import { TypeOf } from 'zod';
 
 export async function handleConnection(socket: Socket, chatService: ChatService) {
   try {
@@ -15,7 +14,7 @@ export async function handleConnection(socket: Socket, chatService: ChatService)
     await chatService.joinPersonalRoom(socket, userId);
     await chatService.joinChatRooms(socket, userId);
 
-    socket.on('message', (payload) => handleIncomingMessage(socket, chatService, userId, payload));
+    socket.on('message', (payload) => handleIncomingMessage({socket, chatService, userId, payload}));
 
     socket.on('disconnect', async () => {
       console.log(`🔴 [/status] Disconnected: ${socket.id}`);
@@ -32,42 +31,57 @@ type HandleIncomingMessageParams = {
   payload: unknown;
 };
 
-async function handleIncomingMessage(data : HandleIncomingMessageParams) {
+async function handleIncomingMessage(data: HandleIncomingMessageParams) {
   try {
-    const { roomId, contents } = requestMessageSchema.parse(data.payload);
+    const { messageData, roomType, otherUserId } = await validateIncomingMessage(data);
 
-    const messageData: ResponseMessage = responseMessageSchema.parse({
-      roomId,
-      userId: data.userId,
-      contents,
-      time: new Date().toISOString(),
-    });
+    data.socket.to(`room:${messageData.roomId}`).emit('message', messageData);
 
-    const [roomType, members] = await Promise.all([
-      dependencies.chatRoomRepository.getRoomType(roomId),
-      dependencies.chatJoinListRepository.findManyByRoomId(roomId),
-    ]);
-
-    const isUserInRoom = members.some((member) => member.userId === data.userId);
-    if (!isUserInRoom) {
-      throw new ForbiddenException('이 채팅방에 참여하지 않은 사용자입니다');
-    }
-
-    data.socket.to(`room:${roomId}`).emit('message', messageData);
-
-    if (roomType === ChatRoomType.PRIVATE) {
-      const otherUserId = members.find((join) => join.userId !== data.userId)?.userId;
-      if (!otherUserId) {
-        throw new Error('상대방을 찾을 수 없습니다 (1:1 채팅방 아님)');
-      }
-
+    if (roomType === ChatRoomType.PRIVATE && otherUserId !== undefined) {
       const isBlocked = await checkBlockStatus(otherUserId, data.userId);
       if (isBlocked) return;
     }
+
     await data.chatService.saveMessage(messageData);
     // TODO: Kafka로 메시지 전송
+
   } catch (e) {
     console.error('❌ 메시지 처리 실패:', e);
     data.socket.emit('error_message', { message: '메시지 포맷 오류 또는 권한 문제' });
   }
+}
+
+async function validateIncomingMessage(data: HandleIncomingMessageParams): Promise<{
+  messageData: ResponseMessage;
+  roomType: ChatRoomType;
+  otherUserId?: number;
+}> {
+  const { roomId, contents } = requestMessageSchema.parse(data.payload);
+
+  const messageData: ResponseMessage = responseMessageSchema.parse({
+    roomId,
+    userId: data.userId,
+    contents,
+    time: new Date().toISOString(),
+  });
+
+  const [roomType, members] = await Promise.all([
+    dependencies.chatRoomRepository.getRoomType(roomId),
+    dependencies.chatJoinListRepository.findManyByRoomId(roomId),
+  ]);
+
+  const isUserInRoom = members.some((member) => member.userId === data.userId);
+  if (!isUserInRoom) {
+    throw new ForbiddenException('이 채팅방에 참여하지 않은 사용자입니다');
+  }
+
+  let otherUserId: number | undefined = undefined;
+  if (roomType === ChatRoomType.PRIVATE) {
+    otherUserId = members.find((join) => join.userId !== data.userId)?.userId;
+    if (!otherUserId) {
+      throw new Error('상대방을 찾을 수 없습니다 (1:1 채팅방 아님)');
+    }
+  }
+
+  return { messageData, roomType, otherUserId };
 }
