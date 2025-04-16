@@ -1,20 +1,20 @@
 import { Socket } from 'socket.io';
-import ChatService from './chat.service.js';
+import ChatManager from './chat.manager.js';
 import { requestMessageSchema, ResponseMessage, responseMessageSchema } from './chat.schema.js';
 import { dependencies } from './chat.dependencies.js';
 import { ForbiddenException } from '../../../v1/common/exceptions/core.error.js';
 import { checkBlockStatus } from './chat.client.js';
 import { ChatRoomType } from '@prisma/client';
 
-export async function handleConnection(socket: Socket, chatService: ChatService) {
+export async function handleConnection(socket: Socket, chatManager: ChatManager) {
   try {
     const userId = socket.data.userId;
     console.log(`🟢 [/chat] Connected: ${socket.id}, ${userId}`);
 
-    await chatService.joinPersonalRoom(socket, userId);
-    await chatService.joinChatRooms(socket, userId);
+    await chatManager.joinPersonalRoom(socket, userId);
+    await chatManager.joinChatRooms(socket, userId);
 
-    socket.on('message', (payload) => handleIncomingMessage({socket, chatService, userId, payload}));
+    socket.on('message', (payload) => handleIncomingMessage({socket, chatManager, userId, payload}));
 
     socket.on('disconnect', async () => {
       console.log(`🔴 [/status] Disconnected: ${socket.id}`);
@@ -26,12 +26,12 @@ export async function handleConnection(socket: Socket, chatService: ChatService)
 
 type HandleIncomingMessageParams = {
   socket: Socket;
-  chatService: ChatService;
+  chatManager: ChatManager;
   userId: number;
   payload: unknown;
 };
 
-async function handleIncomingMessage({socket, chatService, userId, payload}: HandleIncomingMessageParams) {
+async function handleIncomingMessage({socket, chatManager, userId, payload}: HandleIncomingMessageParams) {
   try {
     const { messageData, roomType, otherUserId } = await validateIncomingMessage(userId, payload);
 
@@ -42,7 +42,7 @@ async function handleIncomingMessage({socket, chatService, userId, payload}: Han
       if (isBlocked) return;
     }
 
-    await chatService.saveMessage(messageData);
+    await chatManager.saveMessage(messageData);
     // TODO: Kafka로 메시지 전송
 
   } catch (e) {

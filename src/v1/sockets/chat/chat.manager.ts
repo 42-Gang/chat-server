@@ -4,7 +4,7 @@ import { ResponseMessage } from './chat.schema.js';
 import { ChatRoomType } from '@prisma/client';
 import { checkBlockStatus } from './chat.client.js';
 
-export default class ChatService {
+export default class ChatManager {
   constructor() {}
 
   async createChatRoom(userAId: number, userBId: number) {
