@@ -4,10 +4,10 @@ import { chatMessageSchema } from './chat.schema.js';
 
 export const getMessagesResponseSchema = createResponseSchema(
   z.object({
-    chat_history: z.array(chatMessageSchema),
+    chatHistory: z.array(chatMessageSchema),
   }),
 );
 
 export const getMessagesParamsSchema = z.object({
-  room_id: z.preprocess((val) => Number(val), z.number()).default(150),
+  roomId: z.preprocess((val) => Number(val), z.number()),
 });

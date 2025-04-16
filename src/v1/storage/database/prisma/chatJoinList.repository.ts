@@ -8,6 +8,10 @@ export default class ChatJoinListRepositoryPrisma implements ChatJoinListReposit
     return this.prisma.chatJoinList.create({ data });
   }
 
+  createMany(data: Prisma.ChatJoinListCreateManyInput[]): Promise<Prisma.BatchPayload> {
+    return this.prisma.chatJoinList.createMany({ data });
+  }
+
   delete(id: number): Promise<ChatJoinList> {
     return this.prisma.chatJoinList.delete({ where: { id } });
   }
@@ -24,7 +28,15 @@ export default class ChatJoinListRepositoryPrisma implements ChatJoinListReposit
     return this.prisma.chatJoinList.update({ where: { id }, data });
   }
 
-  findByRoomId(room_id: number): Promise<ChatJoinList[]> {
-    return this.prisma.chatJoinList.findMany({ where: { room_id } });
+  findManyByRoomId(roomId: number): Promise<ChatJoinList[]> {
+    return this.prisma.chatJoinList.findMany({ where: { roomId } });
+  }
+
+  findManyByUserId(userId: number): Promise<ChatJoinList[]> {
+    return this.prisma.chatJoinList.findMany({ where: { userId } });
+  }
+
+  findByUserIdAndRoomId(userId: number, roomId: number): Promise<ChatJoinList | null> {
+    return this.prisma.chatJoinList.findUnique({ where: { userId_roomId: { userId, roomId } } });
   }
 }

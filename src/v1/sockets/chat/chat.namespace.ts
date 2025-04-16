@@ -1,25 +1,11 @@
-import { Namespace, Socket } from 'socket.io';
-import * as console from 'node:console';
-import { joinRoomSchema, messageSchema } from './chat.schema.js';
-import { z } from 'zod';
+import { Namespace } from 'socket.io';
+import { socketMiddleware } from '../utils/middleware.js';
+import { handleConnection } from './connection.handler.js';
+import ChatService from './chat.service.js';
 
-export default function chatNamespace(namespace: Namespace) {
-  namespace.on('connection', (socket: Socket) => {
-    console.log(`🟢 [/chat] Connected: ${socket.id}`);
+export default async function chatNamespace(namespace: Namespace) {
+  namespace.use(socketMiddleware);
 
-    socket.on('join', (payload: z.infer<typeof joinRoomSchema>) => {
-      console.log(`🔗 ${socket.id} joined room ${payload.roomId}`);
-      socket.join(payload.roomId);
-      socket.to(payload.roomId).emit('join', `${socket.id} joined room ${payload.roomId}`);
-    });
-
-    socket.on('message', (payload: z.infer<typeof messageSchema>) => {
-      console.log(`💬 ${socket.id} sent message to room ${payload.roomId}: ${payload.message}`);
-      socket.to(payload.roomId).emit('message', payload.message);
-    });
-
-    socket.on('disconnect', () => {
-      console.log(`🔴 [/chat] Disconnected: ${socket.id}`);
-    });
-  });
+  const chatService = new ChatService();
+  namespace.on('connection', (socket) => handleConnection(socket, chatService));
 }

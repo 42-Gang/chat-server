@@ -1,10 +1,13 @@
 import { z } from 'zod';
 
-export const joinRoomSchema = z.object({
-  roomId: z.string(),
+export const requestMessageSchema = z.object({
+  roomId: z.preprocess((val) => Number(val), z.number()),
+  contents: z.string().min(1).max(1000),
 });
 
-export const messageSchema = z.object({
-  roomId: z.string(),
-  message: z.string(),
+export const responseMessageSchema = requestMessageSchema.extend({
+  userId: z.number(),
+  time: z.string().datetime(),
 });
+
+export type ResponseMessage = z.infer<typeof responseMessageSchema>;

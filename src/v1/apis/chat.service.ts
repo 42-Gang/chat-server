@@ -25,12 +25,12 @@ export default class ChatService {
     const rooms = await this.chatRoomRepository.findById(roomId);
     if (!rooms) throw new NotFoundException('채팅방이 존재하지 않습니다.');
 
-    const members = await this.chatJoinListRepository.findByRoomId(roomId);
-    if (!members || !members.some((user) => user.user_id === userId)) {
+    const members = await this.chatJoinListRepository.findManyByRoomId(roomId);
+    if (!members || !members.some((user) => user.userId === userId)) {
       throw new UnAuthorizedException('사용자가 포함된 채팅방이 아닙니다.');
     }
 
-    const messages = await this.chatMessageRepository.findByRoomId(roomId);
+    const messages = await this.chatMessageRepository.findManyByRoomId(roomId);
     if (!messages) {
       throw new NotFoundException('채팅 메시지가 존재하지 않습니다.');
     }
@@ -39,7 +39,7 @@ export default class ChatService {
     return {
       status: STATUS.SUCCESS,
       data: {
-        chat_history: response,
+        chatHistory: response,
       },
     };
   }

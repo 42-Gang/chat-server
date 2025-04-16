@@ -1,4 +1,4 @@
-import { Prisma, ChatRoom } from '@prisma/client';
+import { Prisma, ChatRoom, ChatRoomType } from '@prisma/client';
 import { BaseRepositoryInterface } from './base.repository.interface.js';
 
 export default interface ChatRoomRepositoryInterface
@@ -6,4 +6,6 @@ export default interface ChatRoomRepositoryInterface
     ChatRoom,
     Prisma.ChatRoomCreateInput,
     Prisma.ChatRoomUpdateInput
-  > {}
+  > {
+  getRoomType(id: number): Promise<ChatRoomType>;
+}

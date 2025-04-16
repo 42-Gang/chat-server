@@ -8,7 +8,7 @@ export default async function app(fastify: FastifyInstance) {
   setDecorate(fastify);
   setMiddleware(fastify);
 
-  fastify.register(routeV1, { prefix: '/chat/v1' });
+  fastify.register(routeV1, { prefix: 'v1' });
 }
 
 function setErrorHandler(fastify: FastifyInstance) {
@@ -31,18 +31,21 @@ function setMiddleware(fastify: FastifyInstance) {
       request.authenticated = false;
       request.userId = undefined;
       done();
+      return;
     }
 
     if (userId === undefined || Array.isArray(userId)) {
       request.authenticated = false;
       request.userId = undefined;
       done();
+      return;
     }
 
     if (isNaN(Number(userId))) {
       request.authenticated = false;
       request.userId = undefined;
       done();
+      return;
     }
 
     if (authenticated === 'true') {

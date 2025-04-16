@@ -7,8 +7,7 @@ export default class ChatController {
 
   loadMessages = async (request: FastifyRequest, reply: FastifyReply) => {
     const params = getMessagesParamsSchema.parse(request.params);
-    console.log('request.userId', request.userId);
-    const result = await this.chatService.loadMessages(params.room_id, request.userId);
+    const result = await this.chatService.loadMessages(params.roomId, request.userId);
     reply.code(200).send(result);
   };
 }
