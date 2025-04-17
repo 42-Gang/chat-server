@@ -50,6 +50,7 @@ export default class ChatManager {
     const otherUser = members.find((m) => m.userId !== userId);
     if (!otherUser) throw new Error('1:1 채팅방에 다른 유저가 존재하지 않습니다');
 
+    console.log('otherUser', otherUser);
     const isBlocked = await checkBlockStatus(userId, otherUser.userId);
     if (isBlocked) return false;
     return true;

@@ -5,6 +5,7 @@ import { dependencies } from './chat.dependencies.js';
 import { ForbiddenException } from '../../../v1/common/exceptions/core.error.js';
 import { checkBlockStatus } from './chat.client.js';
 import { ChatRoomType } from '@prisma/client';
+import { sendChat } from './kafka/producer.js'; 
 
 export async function handleConnection(socket: Socket, chatManager: ChatManager) {
   try {
@@ -43,7 +44,8 @@ async function handleIncomingMessage({socket, chatManager, userId, payload}: Han
     }
 
     await chatManager.saveMessage(messageData);
-    // TODO: Kafka로 메시지 전송
+    await sendChat(messageData);
+    console.log('✅ Kafka 이벤트 전송 완료:', messageData);
 
   } catch (e) {
     console.error('❌ 메시지 처리 실패:', e);

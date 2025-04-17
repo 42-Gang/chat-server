@@ -23,28 +23,25 @@ function setErrorHandler(fastify: FastifyInstance) {
 }
 
 function setMiddleware(fastify: FastifyInstance) {
-  fastify.addHook('onRequest', (request, reply, done) => {
+  fastify.addHook('onRequest', async (request, reply) => {
     const authenticated = request.headers['x-authenticated'];
     const userId = request.headers['x-user-id'];
 
     if (authenticated === undefined || Array.isArray(authenticated)) {
       request.authenticated = false;
       request.userId = undefined;
-      done();
       return;
     }
 
     if (userId === undefined || Array.isArray(userId)) {
       request.authenticated = false;
       request.userId = undefined;
-      done();
       return;
     }
 
     if (isNaN(Number(userId))) {
       request.authenticated = false;
       request.userId = undefined;
-      done();
       return;
     }
 
@@ -52,8 +49,6 @@ function setMiddleware(fastify: FastifyInstance) {
       request.authenticated = true;
       request.userId = parseInt(userId as string, 10);
     }
-
-    done();
   });
 }
 
