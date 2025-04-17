@@ -26,7 +26,6 @@ export default class ChatManager {
 
   async joinPersonalRoom(socket: Socket, userId: number) {
     socket.join(`user:${userId}`);
-    // redis에 저장하는 로직 추가
   }
 
   async joinChatRooms(socket: Socket, userId: number) {
@@ -38,7 +37,6 @@ export default class ChatManager {
         socket.join(`room:${room.roomId}`);
       });
     }
-    //redis에 저장하는 로직 추가
   }
 
   async validateRoom(userId: number, roomId: number) {
