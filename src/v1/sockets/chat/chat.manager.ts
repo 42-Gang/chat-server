@@ -1,25 +1,35 @@
-import { Socket } from 'socket.io';
+import { Namespace, Socket } from 'socket.io';
 import { dependencies } from './chat.dependencies.js';
 import { ResponseMessage } from './chat.schema.js';
-import { ChatRoomType } from '@prisma/client';
+import { ChatRoom, ChatRoomType } from '@prisma/client';
 import { checkBlockStatus } from './chat.client.js';
 
 export default class ChatManager {
   constructor() {}
 
-  async createChatRoom(userAId: number, userBId: number) {
+  async createChatRoom(userAId: number, userBId: number) : Promise<ChatRoom>{
     const room = await dependencies.chatRoomRepository.create({
       type: 'PRIVATE',
+      members: {
+        create: [
+          {
+            userId: userAId,
+          },
+          {
+            userId: userBId,
+          }
+        ]
+      }
     });
 
-    await dependencies.chatJoinListRepository.create({
-      roomId: room.id,
-      userId: userAId,
-    });
-    await dependencies.chatJoinListRepository.create({
-      roomId: room.id,
-      userId: userBId,
-    });
+    // await dependencies.chatJoinListRepository.create({
+    //   room: room,
+    //   userId: userAId,
+    // });
+    // await dependencies.chatJoinListRepository.create({
+    //   room: room,
+    //   userId: userBId,
+    // });
 
     return room;
   }
@@ -65,8 +75,38 @@ export default class ChatManager {
     });
   }
 
-  async leaveRoom(socket: Socket, roomId: number) {
-    socket.leave(`room:${roomId}`);
-    console.log(`🟡 ${socket.id} left room:${roomId}`);
+  async leaveDirectMessageRoom(
+    namespace: Namespace,
+    userAId: number,
+    userBId: number,
+  ) {
+    const userSocketA = namespace.in(`user:${userAId}`);
+    const roomId = await dependencies.chatRoomRepository.getPrivateRoomByUserIds(userAId, userBId);
+
+    userSocketA?.socketsLeave(`room:${roomId}`);
+    console.log(`🟡 ${userAId} left room:${roomId}`);
+  }
+
+  async joinDirectMessageRoom(
+    namespace: Namespace,
+    userAId: number,
+    userBId: number,
+  ) {
+    const userSocketA = namespace.in(`user:${userAId}`);
+    const roomId = await dependencies.chatRoomRepository.getPrivateRoomByUserIds(userAId, userBId);
+
+    userSocketA?.socketsJoin(`room:${roomId}`);
+    console.log(`🟡 ${userAId} join room:${roomId}`);
+  }
+
+  async addParticipantsToRoom(
+    namespace: Namespace, 
+    roomId: number, 
+    ...userIds: number[]
+  ) {
+    userIds.forEach((userId) => {
+      const userSocket = namespace.in(`user:${userId}`);
+      userSocket?.socketsJoin(`room:${roomId}`);
+    })
   }
 }

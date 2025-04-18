@@ -16,6 +16,8 @@ model ChatRoom {
   id       Int            @id @default(autoincrement())
   type     ChatRoomType
 
+  members  ChatJoinList[]   
+
   @@map("chat_room")
 }
 
@@ -33,6 +35,8 @@ model ChatJoinList {
   id     Int @id @default(autoincrement())
   roomId Int @map("room_id")
   userId Int @map("user_id")
+
+  room   ChatRoom @relation(fields: [roomId], references: [id])
 
   @@map("chat_join_list")
   @@unique([userId, roomId])
