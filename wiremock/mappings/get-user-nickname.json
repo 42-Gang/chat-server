@@ -1,0 +1,26 @@
+{
+    "request": {
+      "method": "GET",
+      "urlPath": "/api/v1/users/101",
+      "headers": {
+        "X-Authenticated": {
+          "equalTo": "true"
+        },
+        "X-User-Id": {
+          "equalTo": "101"
+        }
+      }
+    },
+    "response": {
+      "status": 200,
+      "jsonBody": {
+        "data": {
+          "nickname": "john_doe",
+          "avatar": "https://example.com/avatar/101.png"
+        }
+      },
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    }
+  }

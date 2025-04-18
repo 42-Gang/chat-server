@@ -22,15 +22,6 @@ export default class ChatManager {
       }
     });
 
-    // await dependencies.chatJoinListRepository.create({
-    //   room: room,
-    //   userId: userAId,
-    // });
-    // await dependencies.chatJoinListRepository.create({
-    //   room: room,
-    //   userId: userBId,
-    // });
-
     return room;
   }
 
