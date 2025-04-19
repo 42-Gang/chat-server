@@ -31,4 +31,18 @@ export default class ChatRoomRepositoryPrisma implements ChatRoomRepositoryInter
     });
     return room.type;
   }
+
+  async getPrivateRoomByUserIds(userAId: number, userBId: number): Promise<number | null> {
+    const room = await this.prisma.chatRoom.findFirst({
+      where: {
+        type: 'PRIVATE',
+        AND: [
+          { members: { some: { userId: userAId } } },
+          { members: { some: { userId: userBId } } },
+        ],
+      },
+      select: { id: true },
+    });
+    return room?.id ?? null;
+  }
 }

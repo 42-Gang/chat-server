@@ -6,6 +6,5 @@ export const TOPICS = {
 };
 
 export const GROUP_IDS = {
-  STATUS: 'status-consumer-group',
-  ACTIVE: 'active-consumer-group',
+  FRIEND: 'friend-consumer-group',
 };
