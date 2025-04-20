@@ -11,8 +11,8 @@ export async function startConsumer(
     chatManager: ChatManager,
 ) {
     await consumer.connect();
-    await consumer.subscribe({ topic: TOPICS.FRIEND_ADD, fromBeginning: true });
-    await consumer.subscribe({ topic: TOPICS.FRIEND_BLOCK, fromBeginning: true });
+    await consumer.subscribe({ topic: TOPICS.FRIEND, fromBeginning: true });
+    await consumer.subscribe({ topic: TOPICS.FRIEND, fromBeginning: true });
 
     await consumer.run({
         eachMessage: async ({ topic, message }) => {
@@ -22,11 +22,11 @@ export async function startConsumer(
 
             const parsedMessage = JSON.parse(message.value.toString());
             
-            if (topic === TOPICS.FRIEND_ADD) {
+            if (topic === TOPICS.FRIEND) {
                 handleFriendAddEvent(parsedMessage, namespace, chatManager);
                 return;
             }
-            if (topic === TOPICS.FRIEND_BLOCK) {
+            if (topic === TOPICS.FRIEND) {
                 handleFriendBlockEvent(parsedMessage, namespace, chatManager);
                 return;
             }

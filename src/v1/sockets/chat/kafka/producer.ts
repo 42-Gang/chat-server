@@ -7,7 +7,11 @@ export async function sendChat(chat: ResponseMessage) {
   console.log(`Sending chat event to Kafka`);
 
   await producer.send({
-    topic: TOPICS.CHAT_SEND,
-    messages: [{ value: JSON.stringify({ chat }) }],
+    topic: TOPICS.CHAT,
+    messages: [{ value: JSON.stringify({ 
+      ...chat,
+      eventType: 'SEND',
+     }) }],
   });
 }
+  

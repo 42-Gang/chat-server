@@ -1,10 +1,10 @@
 export const TOPICS = {
+  FRIEND: 'friend',
   USER_STATUS: 'user-status',
-  FRIEND_ADD: 'friend-add',
-  FRIEND_BLOCK: 'friend-block',
-  CHAT_SEND: 'chat-send',
+  CHAT: 'chat',
 };
 
+
 export const GROUP_IDS = {
-  FRIEND: 'friend-consumer-group',
+  FRIEND: 'chat-friend-events-consumer',
 };
