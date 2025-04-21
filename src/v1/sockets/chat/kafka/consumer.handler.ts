@@ -30,16 +30,22 @@ export async function handleFriendBlockEvent(
     const blockerId = Number(fromUserId);
     const blockedId = Number(toUserId);
 
-    if (message.eventType === "BLOCKED") {
-        console.log(`Friend blocked: ${message}`);
-        await chatManager.leaveDirectMessageRoom(namespace, blockerId, blockedId);
-        return;
-    } 
-    if (message.eventType === "UNBLOCKED") {
-        console.log(`Friend unblocked: ${message}`);
-        await chatManager.joinDirectMessageRoom(namespace, blockerId, blockedId);
-        return;
-    }
-    console.error(`Unknown block status: ${message.eventType}`);
+    console.log(`Friend blocked: ${message}`);
+    await chatManager.leaveDirectMessageRoom(namespace, blockerId, blockedId);
+    return;
+}
+
+export async function handleFriendUnblockEvent(
+    message: TypeOf<typeof friendBlockMessage>,
+    namespace: Namespace,
+    chatManager: ChatManager,
+) {
+    const { fromUserId, toUserId } = message;
+
+    const blockerId = Number(fromUserId);
+    const blockedId = Number(toUserId);
+
+    console.log(`Friend unblocked: ${message}`);
+    await chatManager.joinDirectMessageRoom(namespace, blockerId, blockedId);
     return;
 }

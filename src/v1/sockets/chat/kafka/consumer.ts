@@ -1,7 +1,7 @@
 import { GROUP_IDS, TOPICS } from "./constants.js";
 import { kafka } from "../../../../plugins/kafka.js";
 import { Namespace } from "socket.io";
-import { handleFriendAddEvent, handleFriendBlockEvent } from "./consumer.handler.js";
+import { handleFriendAddEvent, handleFriendBlockEvent, handleFriendUnblockEvent } from "./consumer.handler.js";
 import ChatManager from "../chat.manager.js";
 
 const consumer = kafka.consumer({ groupId: GROUP_IDS.FRIEND, sessionTimeout: 10000 });
@@ -12,7 +12,6 @@ export async function startConsumer(
 ) {
     await consumer.connect();
     await consumer.subscribe({ topic: TOPICS.FRIEND, fromBeginning: true });
-    await consumer.subscribe({ topic: TOPICS.FRIEND, fromBeginning: true });
 
     await consumer.run({
         eachMessage: async ({ topic, message }) => {
@@ -22,12 +21,16 @@ export async function startConsumer(
 
             const parsedMessage = JSON.parse(message.value.toString());
             
-            if (topic === TOPICS.FRIEND) {
+            if (parsedMessage.eventType === 'ADDED') {
                 handleFriendAddEvent(parsedMessage, namespace, chatManager);
                 return;
             }
-            if (topic === TOPICS.FRIEND) {
+            if (parsedMessage.eventType === 'BLOCKED') {
                 handleFriendBlockEvent(parsedMessage, namespace, chatManager);
+                return;
+            }
+            if (parsedMessage.eventType === 'UNBLOCKED') {
+                handleFriendUnblockEvent(parsedMessage, namespace, chatManager);
                 return;
             }
         },
