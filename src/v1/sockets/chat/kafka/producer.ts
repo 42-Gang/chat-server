@@ -8,9 +8,11 @@ export async function sendChat(chat: ResponseMessage) {
 
   await producer.send({
     topic: TOPICS.CHAT,
-    messages: [{ value: JSON.stringify({ 
-      ...chat,
-      eventType: 'SEND',
+    messages: [{ 
+      key:  String(chat.roomId),
+      value: JSON.stringify({ 
+        ...chat,
+        eventType: 'SEND',
      }) }],
   });
 }
