@@ -6,7 +6,7 @@ export async function checkBlockStatus(userAId: number, userBId: number): Promis
       data: { status: 'BLOCKED' | 'PENDING' | 'ACCEPTED' | 'REJECTED' };
     }>({
       method: 'GET',
-      url: `${process.env.USER_SERVER_URL}/api/v1/friends/status?user_id=${userAId}&friend_id=${userBId}`,
+      url: `http://${process.env.USER_SERVER_URL}/api/v1/friends/status?user_id=${userAId}&friend_id=${userBId}`,
       headers: {
         'X-Authenticated': 'true',
         'X-User-Id': userAId.toString(),
@@ -31,7 +31,7 @@ export async function getUserNick(userId: number): Promise<string | undefined> {
       };
     }>({
       method: 'GET',
-      url: `${process.env.USER_SERVER_URL}/api/v1/users/${userId}`,
+      url: `http://${process.env.USER_SERVER_URL}/api/v1/users/${userId}`,
       headers: {
         'X-Authenticated': 'true',
         'X-User-Id': userId.toString(),

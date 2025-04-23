@@ -62,7 +62,7 @@ export default class ChatManager {
       roomId: data.roomId,
       userId: data.userId,
       contents: data.contents,
-      time: data.time,
+      timestamp: data.timestamp,
     });
   }
 

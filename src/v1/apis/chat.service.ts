@@ -16,7 +16,7 @@ export default class ChatService {
     return {
       id: messages.id,
       nickname: 'test',
-      time: new Date(messages.time),
+      timestamp: new Date(messages.timestamp),
       message: messages.contents,
     };
   }

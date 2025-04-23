@@ -26,7 +26,7 @@ model ChatMessage {
   roomId   Int      @map("room_id")
   userId   Int      @map("user_id")
   contents String
-  time     DateTime
+  timestamp     DateTime
 
   @@map("chat_message")
 }
