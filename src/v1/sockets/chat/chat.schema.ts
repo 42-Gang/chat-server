@@ -7,7 +7,7 @@ export const requestMessageSchema = z.object({
 
 export const responseMessageSchema = requestMessageSchema.extend({
   userId: z.number(),
-  time: z.string().datetime(),
+  timestamp: z.string().datetime(),
   nickname: z.string().min(2).max(8),
 });
 

@@ -1,4 +1,4 @@
-import { GROUP_IDS, TOPICS } from "./constants.js";
+import { FRIEND_EVENTS, GROUP_IDS, TOPICS } from "./constants.js";
 import { kafka } from "../../../../plugins/kafka.js";
 import { Namespace } from "socket.io";
 import { handleFriendAddEvent, handleFriendBlockEvent, handleFriendUnblockEvent } from "./consumer.handler.js";
@@ -21,15 +21,15 @@ export async function startConsumer(
 
             const parsedMessage = JSON.parse(message.value.toString());
             
-            if (parsedMessage.eventType === 'ADDED') {
+            if (parsedMessage.eventType === FRIEND_EVENTS.ACCEPTED) {
                 handleFriendAddEvent(parsedMessage, namespace, chatManager);
                 return;
             }
-            if (parsedMessage.eventType === 'BLOCKED') {
+            if (parsedMessage.eventType === FRIEND_EVENTS.BLOCK) {
                 handleFriendBlockEvent(parsedMessage, namespace, chatManager);
                 return;
             }
-            if (parsedMessage.eventType === 'UNBLOCKED') {
+            if (parsedMessage.eventType === FRIEND_EVENTS.UNBLOCK) {
                 handleFriendUnblockEvent(parsedMessage, namespace, chatManager);
                 return;
             }

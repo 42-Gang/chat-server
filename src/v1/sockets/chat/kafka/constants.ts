@@ -4,6 +4,13 @@ export const TOPICS = {
   CHAT: 'chat',
 };
 
+export const FRIEND_EVENTS = {
+  REQUESTED: 'REQUESTED',
+  ACCEPTED: 'ACCEPTED',
+  ADDED: 'ADDED',
+  BLOCK: 'BLOCK',
+  UNBLOCK: 'UNBLOCK',
+};
 
 export const GROUP_IDS = {
   FRIEND: 'chat-friend-events-consumer',

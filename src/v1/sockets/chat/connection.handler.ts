@@ -65,7 +65,7 @@ async function validateIncomingMessage(userId: number, payload: unknown): Promis
     userId: userId,
     nickname: await getUserNick(userId),
     contents,
-    time: new Date().toISOString(),
+    timestamp: new Date().toISOString(),
   });
 
   const [roomType, members] = await Promise.all([
