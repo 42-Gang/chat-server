@@ -49,7 +49,7 @@ async function handleIncomingMessage({socket, chatManager, userId, payload}: Han
 
   } catch (e) {
     console.error('❌ 메시지 처리 실패:', e);
-    socket.emit('error_message', { message: '메시지 포맷 오류 또는 권한 문제' });
+    socket.emit('error', { error: '메시지 보내기 실패' });
   }
 }
 
