@@ -19,9 +19,14 @@ export async function startConsumer(
                 return console.warn(`Null message value for topic ${topic}`);
             }
 
+            console.log('raw', message);
+            // console.log('message', message.value.toString());
+
             const parsedMessage = JSON.parse(message.value.toString());
+
+            console.log('parsedMessage', parsedMessage);
             
-            if (parsedMessage.eventType === FRIEND_EVENTS.ACCEPTED) {
+            if (parsedMessage.eventType === FRIEND_EVENTS.ADDED) {
                 handleFriendAddEvent(parsedMessage, namespace, chatManager);
                 return;
             }
