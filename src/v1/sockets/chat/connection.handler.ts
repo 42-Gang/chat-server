@@ -40,7 +40,8 @@ async function handleIncomingMessage({socket, chatManager, userId, payload}: Han
 
     if (roomType === ChatRoomType.PRIVATE && otherUserId !== undefined) {
       const isBlocked = await checkBlockStatus(otherUserId, userId);
-      if (isBlocked) return;
+      const isBlockedBy = await checkBlockStatus(userId, otherUserId);
+      if (isBlocked || isBlockedBy) return;
     }
 
     await chatManager.saveMessage(messageData);
