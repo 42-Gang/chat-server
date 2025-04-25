@@ -1,11 +1,33 @@
+import { UnAuthorizedException } from '../../common/exceptions/core.error.js';
 import { gotClient } from '../../../plugins/http.client.js';
 
-export async function verifyAccessToken(token: string): Promise<boolean> {
+export async function verifyAccessToken(token: string): Promise<{
+  status: number;
+  userId: string;
+}>  {
   const response = await gotClient.request({
     method: 'POST',
-    url: 'http://localhost:8080/api/v1/auth/token/verify',
-    body: { access_token: token },
+    url: `http://${process.env.AUTH_SERVER_URL}/api/v1/auth/validate-token`,
+    headers: {
+      authorization: `Bearer ${token}`,
+    },
   });
 
-  return response.statusCode === 200;
+  if (response.headers['x-authenticated'] === undefined) {
+    throw new UnAuthorizedException('');
+  }
+
+  if (response.headers['x-authenticated'] !== 'true') {
+    throw new UnAuthorizedException('');
+  }
+
+  const userId = response.headers['x-user-id'];
+  if (Array.isArray(userId) || userId === undefined) {
+    throw new UnAuthorizedException('');
+  }
+
+  return {
+    status: response.statusCode,
+    userId,
+  };
 }

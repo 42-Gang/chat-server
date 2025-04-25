@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import ChatService from './chat.service.js';
-import { getMessagesParamsSchema } from './schemas/getMessages.schema.js';
+import { getMessagesParamsSchema } from './schemas/get-messages.schema.js';
 
 export default class ChatController {
   constructor(private readonly chatService: ChatService) {}

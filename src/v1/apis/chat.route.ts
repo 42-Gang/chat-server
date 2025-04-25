@@ -4,7 +4,7 @@ import ChatController from './chat.controller.js';
 import {
   getMessagesParamsSchema,
   getMessagesResponseSchema,
-} from './schemas/getMessages.schema.js';
+} from './schemas/get-messages.schema.js';
 import { addRoutes, Route } from '../../plugins/router.js';
 
 export default async function chatRoutes(fastify: FastifyInstance) {
