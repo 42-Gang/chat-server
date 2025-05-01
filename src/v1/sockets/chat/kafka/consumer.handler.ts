@@ -1,51 +1,50 @@
-import { Namespace } from "socket.io";
-import { TypeOf } from "zod";
-import { friendAddMessage, friendBlockMessage } from "./messages.schema.js";
-import ChatManager from "../chat.manager.js";
+import { Namespace } from 'socket.io';
+import { TypeOf } from 'zod';
+import { friendAddMessage, friendBlockMessage } from './messages.schema.js';
+import ChatManager from '../chat.manager.js';
 
 export async function handleFriendAddEvent(
-    message: TypeOf<typeof friendAddMessage>,
-    namespace: Namespace,
-    chatManager: ChatManager,
+  message: TypeOf<typeof friendAddMessage>,
+  namespace: Namespace,
+  chatManager: ChatManager,
 ) {
-    console.log(`Friend added: ${message}`);
-    const { userAId, userBId } = message;
+  console.log(`Friend added: ${message}`);
+  const { userAId, userBId } = message;
 
-    const parsedUserAId = Number(userAId);
-    const parsedUserBId = Number(userBId);
+  const parsedUserAId = Number(userAId);
+  const parsedUserBId = Number(userBId);
 
-    const room = await chatManager.createChatRoom(parsedUserAId, parsedUserBId);
+  const room = await chatManager.createChatRoom(parsedUserAId, parsedUserBId);
 
-    chatManager.addParticipantsToRoom(namespace, room.id, parsedUserAId, parsedUserBId);
+  chatManager.addParticipantsToRoom(namespace, room.id, parsedUserAId, parsedUserBId);
 }
 
-
 export async function handleFriendBlockEvent(
-    message: TypeOf<typeof friendBlockMessage>,
-    namespace: Namespace,
-    chatManager: ChatManager,
+  message: TypeOf<typeof friendBlockMessage>,
+  namespace: Namespace,
+  chatManager: ChatManager,
 ) {
-    const { fromUserId, toUserId } = message;
+  const { fromUserId, toUserId } = message;
 
-    const blockerId = Number(fromUserId);
-    const blockedId = Number(toUserId);
+  const blockerId = Number(fromUserId);
+  const blockedId = Number(toUserId);
 
-    console.log(`Friend blocked: ${message}`);
-    await chatManager.leaveDirectMessageRoom(namespace, blockerId, blockedId);
-    return;
+  console.log(`Friend blocked: ${message}`);
+  await chatManager.leaveDirectMessageRoom(namespace, blockerId, blockedId);
+  return;
 }
 
 export async function handleFriendUnblockEvent(
-    message: TypeOf<typeof friendBlockMessage>,
-    namespace: Namespace,
-    chatManager: ChatManager,
+  message: TypeOf<typeof friendBlockMessage>,
+  namespace: Namespace,
+  chatManager: ChatManager,
 ) {
-    const { fromUserId, toUserId } = message;
+  const { fromUserId, toUserId } = message;
 
-    const blockerId = Number(fromUserId);
-    const blockedId = Number(toUserId);
+  const blockerId = Number(fromUserId);
+  const blockedId = Number(toUserId);
 
-    console.log(`Friend unblocked: ${message}`);
-    await chatManager.joinDirectMessageRoom(namespace, blockerId, blockedId);
-    return;
+  console.log(`Friend unblocked: ${message}`);
+  await chatManager.joinDirectMessageRoom(namespace, blockerId, blockedId);
+  return;
 }
