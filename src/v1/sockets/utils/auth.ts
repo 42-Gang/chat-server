@@ -4,7 +4,7 @@ import { gotClient } from '../../../plugins/http.client.js';
 export async function verifyAccessToken(token: string): Promise<{
   status: number;
   userId: string;
-}>  {
+}> {
   const response = await gotClient.request({
     method: 'POST',
     url: `http://${process.env.AUTH_SERVER_URL}/api/v1/auth/validate-token`,

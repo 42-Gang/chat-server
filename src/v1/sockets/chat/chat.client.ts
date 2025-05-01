@@ -26,8 +26,8 @@ export async function getUserNick(userId: number): Promise<string | undefined> {
   try {
     const friendStatus = await gotClient.request<{
       data: {
-        nickname: string,
-        avatar: string,
+        nickname: string;
+        avatar: string;
       };
     }>({
       method: 'GET',

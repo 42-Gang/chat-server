@@ -1,4 +1,3 @@
-
 import { TOPICS } from './constants.js';
 import { producer } from '../../../../plugins/kafka.js';
 import { ResponseMessage } from '../chat.schema.js';
@@ -8,16 +7,18 @@ export async function sendChat(chat: ResponseMessage) {
 
   await producer.send({
     topic: TOPICS.CHAT,
-    messages: [{ 
-      key:  String(chat.roomId),
-      value: JSON.stringify({ 
-        userId: chat.userId,
-        nickname: chat.nickname,
-        timestamp: chat.timestamp,
-        contents: chat.contents,
-        roomId: chat.roomId,
-        eventType: 'SEND',
-     }) }],
+    messages: [
+      {
+        key: String(chat.roomId),
+        value: JSON.stringify({
+          userId: chat.userId,
+          nickname: chat.nickname,
+          timestamp: chat.timestamp,
+          contents: chat.contents,
+          roomId: chat.roomId,
+          eventType: 'SEND',
+        }),
+      },
+    ],
   });
 }
-  

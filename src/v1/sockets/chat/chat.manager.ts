@@ -7,7 +7,7 @@ import { checkBlockStatus } from './chat.client.js';
 export default class ChatManager {
   constructor() {}
 
-  async createChatRoom(userAId: number, userBId: number) : Promise<ChatRoom>{
+  async createChatRoom(userAId: number, userBId: number): Promise<ChatRoom> {
     const room = await dependencies.chatRoomRepository.create({
       type: 'PRIVATE',
       members: {
@@ -17,9 +17,9 @@ export default class ChatManager {
           },
           {
             userId: userBId,
-          }
-        ]
-      }
+          },
+        ],
+      },
     });
 
     return room;
@@ -66,11 +66,7 @@ export default class ChatManager {
     });
   }
 
-  async leaveDirectMessageRoom(
-    namespace: Namespace,
-    userAId: number,
-    userBId: number,
-  ) {
+  async leaveDirectMessageRoom(namespace: Namespace, userAId: number, userBId: number) {
     const userSocketA = namespace.in(`user:${userAId}`);
     const roomId = await dependencies.chatRoomRepository.getPrivateRoomByUserIds(userAId, userBId);
 
@@ -78,11 +74,7 @@ export default class ChatManager {
     console.log(`🟡 ${userAId} left room:${roomId}`);
   }
 
-  async joinDirectMessageRoom(
-    namespace: Namespace,
-    userAId: number,
-    userBId: number,
-  ) {
+  async joinDirectMessageRoom(namespace: Namespace, userAId: number, userBId: number) {
     const userSocketA = namespace.in(`user:${userAId}`);
     const roomId = await dependencies.chatRoomRepository.getPrivateRoomByUserIds(userAId, userBId);
 
@@ -90,14 +82,10 @@ export default class ChatManager {
     console.log(`🟡 ${userAId} join room:${roomId}`);
   }
 
-  async addParticipantsToRoom(
-    namespace: Namespace, 
-    roomId: number, 
-    ...userIds: number[]
-  ) {
+  async addParticipantsToRoom(namespace: Namespace, roomId: number, ...userIds: number[]) {
     userIds.forEach((userId) => {
       const userSocket = namespace.in(`user:${userId}`);
       userSocket?.socketsJoin(`room:${roomId}`);
-    })
+    });
   }
 }

@@ -5,7 +5,7 @@ import { dependencies } from './chat.dependencies.js';
 import { ForbiddenException } from '../../../v1/common/exceptions/core.error.js';
 import { checkBlockStatus, getUserNick } from './chat.client.js';
 import { ChatRoomType } from '@prisma/client';
-import { sendChat } from './kafka/producer.js'; 
+import { sendChat } from './kafka/producer.js';
 
 export async function handleConnection(socket: Socket, chatManager: ChatManager) {
   try {
@@ -15,7 +15,14 @@ export async function handleConnection(socket: Socket, chatManager: ChatManager)
     await chatManager.joinPersonalRoom(socket, userId);
     await chatManager.joinChatRooms(socket, userId);
 
-    socket.on('message', (payload) => handleIncomingMessage({socket, chatManager, userId, payload}));
+    socket.on('message', (payload) =>
+      handleIncomingMessage({
+        socket,
+        chatManager,
+        userId,
+        payload,
+      }),
+    );
 
     socket.on('disconnect', async () => {
       console.log(`🔴 [/status] Disconnected: ${socket.id}`);
@@ -32,7 +39,12 @@ type HandleIncomingMessageParams = {
   payload: unknown;
 };
 
-async function handleIncomingMessage({socket, chatManager, userId, payload}: HandleIncomingMessageParams) {
+async function handleIncomingMessage({
+  socket,
+  chatManager,
+  userId,
+  payload,
+}: HandleIncomingMessageParams) {
   try {
     const { messageData, roomType, otherUserId } = await validateIncomingMessage(userId, payload);
 
@@ -47,14 +59,16 @@ async function handleIncomingMessage({socket, chatManager, userId, payload}: Han
     await chatManager.saveMessage(messageData);
     await sendChat(messageData);
     console.log('✅ Kafka 이벤트 전송 완료:', messageData);
-
   } catch (e) {
     console.error('❌ 메시지 처리 실패:', e);
     socket.emit('error', { error: '메시지 보내기 실패' });
   }
 }
 
-async function validateIncomingMessage(userId: number, payload: unknown): Promise<{
+async function validateIncomingMessage(
+  userId: number,
+  payload: unknown,
+): Promise<{
   messageData: ResponseMessage;
   roomType: ChatRoomType;
   otherUserId?: number;
