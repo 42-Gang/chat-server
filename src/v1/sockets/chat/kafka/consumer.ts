@@ -12,7 +12,7 @@ const consumer = kafka.consumer({ groupId: GROUP_IDS.FRIEND, sessionTimeout: 100
 
 export async function startConsumer(namespace: Namespace, chatManager: ChatManager) {
   await consumer.connect();
-  await consumer.subscribe({ topic: TOPICS.FRIEND, fromBeginning: true });
+  await consumer.subscribe({ topic: TOPICS.FRIEND, fromBeginning: false });
 
   await consumer.run({
     eachMessage: async ({ topic, message }) => {
