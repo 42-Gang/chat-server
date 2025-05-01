@@ -38,6 +38,6 @@ model ChatJoinList {
 
   room ChatRoom @relation(fields: [roomId], references: [id])
 
-  @@map("chat_join_list")
   @@unique([userId, roomId])
+  @@map("chat_join_list")
 }
