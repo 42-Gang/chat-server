@@ -1,6 +1,6 @@
 import { Namespace } from 'socket.io';
 import { TypeOf } from 'zod';
-import { friendAddMessage, friendBlockMessage } from './messages.schema.js';
+import { friendAddMessage, friendBlockMessage, logoutMessage } from './messages.schema.js';
 import ChatManager from '../chat.manager.js';
 
 export async function handleFriendAddEvent(
@@ -46,5 +46,18 @@ export async function handleFriendUnblockEvent(
 
   console.log(`Friend unblocked: ${message}`);
   await chatManager.joinDirectMessageRoom(namespace, blockerId, blockedId);
+  return;
+}
+
+export async function handleUserLogout(
+  message: TypeOf<typeof logoutMessage>,
+  namespace: Namespace,
+) {
+  const { userId } = message;
+
+  console.log(`🔴 Logout: ${userId}`);
+
+  namespace.to(`user:${userId}`).disconnectSockets();
+
   return;
 }

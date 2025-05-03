@@ -1,10 +1,11 @@
-import { FRIEND_EVENTS, GROUP_IDS, TOPICS } from './constants.js';
+import { AUTH_EVENTS, FRIEND_EVENTS, GROUP_IDS, TOPICS } from './constants.js';
 import { kafka } from '../../../../plugins/kafka.js';
 import { Namespace } from 'socket.io';
 import {
   handleFriendAddEvent,
   handleFriendBlockEvent,
   handleFriendUnblockEvent,
+  handleUserLogout,
 } from './consumer.handler.js';
 import ChatManager from '../chat.manager.js';
 
@@ -13,6 +14,7 @@ const consumer = kafka.consumer({ groupId: GROUP_IDS.FRIEND, sessionTimeout: 100
 export async function startConsumer(namespace: Namespace, chatManager: ChatManager) {
   await consumer.connect();
   await consumer.subscribe({ topic: TOPICS.FRIEND, fromBeginning: false });
+  await consumer.subscribe({ topic: TOPICS.AUTH, fromBeginning: false });
 
   await consumer.run({
     eachMessage: async ({ topic, message }) => {
@@ -34,6 +36,10 @@ export async function startConsumer(namespace: Namespace, chatManager: ChatManag
         }
         if (parsedMessage.eventType === FRIEND_EVENTS.UNBLOCK) {
           await handleFriendUnblockEvent(parsedMessage, namespace, chatManager);
+          return;
+        }
+        if (parsedMessage.eventType === AUTH_EVENTS.LOGOUT) {
+          await handleUserLogout(parsedMessage, namespace);
           return;
         }
       } catch (error) {

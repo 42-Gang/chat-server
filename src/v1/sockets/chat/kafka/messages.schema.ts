@@ -13,3 +13,9 @@ export const friendBlockMessage = z.object({
   eventType: z.enum(['BLOCKED', 'UNBLOCKED']),
   timestamp: z.string(),
 });
+
+export const logoutMessage = z.object({
+  userId: z.number(),
+  eventType: z.enum(['LOGOUT']),
+  timestamp: z.string(),
+});

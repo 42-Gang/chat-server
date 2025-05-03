@@ -25,7 +25,7 @@ export async function handleConnection(socket: Socket, chatManager: ChatManager)
     );
 
     socket.on('disconnect', async () => {
-      console.log(`🔴 [/status] Disconnected: ${socket.id}`);
+      console.log(`🔴 [/chat] Disconnected: ${socket.id}`);
     });
   } catch (error) {
     console.error(`Error in connection handler: ${error}`);
