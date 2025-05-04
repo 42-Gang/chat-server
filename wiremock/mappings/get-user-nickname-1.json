@@ -1,13 +1,13 @@
 {
     "request": {
       "method": "GET",
-      "urlPath": "/api/v1/users/8",
+      "urlPath": "/api/v1/users/101",
       "headers": {
         "X-Authenticated": {
           "equalTo": "true"
         },
         "X-User-Id": {
-          "equalTo": "8"
+          "equalTo": "101"
         }
       }
     },

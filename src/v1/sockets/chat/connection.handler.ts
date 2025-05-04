@@ -45,6 +45,7 @@ async function handleIncomingMessage({
   userId,
   payload,
 }: HandleIncomingMessageParams) {
+  console.log(typeof payload); 
   try {
     const { messageData, roomType, otherUserId } = await validateIncomingMessage(userId, payload);
 
@@ -73,7 +74,8 @@ async function validateIncomingMessage(
   roomType: ChatRoomType;
   otherUserId?: number;
 }> {
-  const { roomId, contents } = requestMessageSchema.parse(payload);
+  const parsedPayload = typeof payload === 'string' ? JSON.parse(payload) : payload;
+  const { roomId, contents } = requestMessageSchema.parse(parsedPayload);
 
   const messageData: ResponseMessage = responseMessageSchema.parse({
     roomId,
