@@ -1,6 +1,6 @@
 import { Namespace } from 'socket.io';
 import { TypeOf } from 'zod';
-import { friendAddMessage, friendBlockMessage } from './messages.schema.js';
+import { friendAddMessage, friendBlockMessage, logoutMessage } from './messages.schema.js';
 import ChatManager from '../chat.manager.js';
 
 export async function handleFriendAddEvent(
@@ -11,8 +11,8 @@ export async function handleFriendAddEvent(
   console.log(`Friend added: ${message}`);
   const { userAId, userBId } = message;
 
-  const parsedUserAId = Number(userAId);
-  const parsedUserBId = Number(userBId);
+  const parsedUserAId = userAId;
+  const parsedUserBId = userBId;
 
   const room = await chatManager.createChatRoom(parsedUserAId, parsedUserBId);
 
@@ -26,8 +26,8 @@ export async function handleFriendBlockEvent(
 ) {
   const { fromUserId, toUserId } = message;
 
-  const blockerId = Number(fromUserId);
-  const blockedId = Number(toUserId);
+  const blockerId = fromUserId;
+  const blockedId = toUserId;
 
   console.log(`Friend blocked: ${message}`);
   await chatManager.leaveDirectMessageRoom(namespace, blockerId, blockedId);
@@ -41,10 +41,23 @@ export async function handleFriendUnblockEvent(
 ) {
   const { fromUserId, toUserId } = message;
 
-  const blockerId = Number(fromUserId);
-  const blockedId = Number(toUserId);
+  const blockerId = fromUserId;
+  const blockedId = toUserId;
 
   console.log(`Friend unblocked: ${message}`);
   await chatManager.joinDirectMessageRoom(namespace, blockerId, blockedId);
+  return;
+}
+
+export async function handleUserLogout(
+  message: TypeOf<typeof logoutMessage>,
+  namespace: Namespace,
+) {
+  const { userId } = message;
+
+  console.log(`🔴 Logout: ${userId}`);
+
+  namespace.to(`user:${userId}`).disconnectSockets();
+
   return;
 }

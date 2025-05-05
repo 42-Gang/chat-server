@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const requestMessageSchema = z.object({
-  roomId: z.preprocess((val) => Number(val), z.number()),
+  roomId: z.number(),
   contents: z.string().min(1).max(1000),
 });
 

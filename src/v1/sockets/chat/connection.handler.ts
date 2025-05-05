@@ -20,12 +20,12 @@ export async function handleConnection(socket: Socket, chatManager: ChatManager)
         socket,
         chatManager,
         userId,
-        payload,
+        payload: JSON.parse(payload),
       }),
     );
 
     socket.on('disconnect', async () => {
-      console.log(`🔴 [/status] Disconnected: ${socket.id}`);
+      console.log(`🔴 [/chat] Disconnected: ${socket.id}`);
     });
   } catch (error) {
     console.error(`Error in connection handler: ${error}`);
@@ -36,7 +36,7 @@ type HandleIncomingMessageParams = {
   socket: Socket;
   chatManager: ChatManager;
   userId: number;
-  payload: unknown;
+  payload: string;
 };
 
 async function handleIncomingMessage({
@@ -45,6 +45,7 @@ async function handleIncomingMessage({
   userId,
   payload,
 }: HandleIncomingMessageParams) {
+  console.log(typeof payload); 
   try {
     const { messageData, roomType, otherUserId } = await validateIncomingMessage(userId, payload);
 
@@ -67,7 +68,7 @@ async function handleIncomingMessage({
 
 async function validateIncomingMessage(
   userId: number,
-  payload: unknown,
+  payload: string,
 ): Promise<{
   messageData: ResponseMessage;
   roomType: ChatRoomType;
