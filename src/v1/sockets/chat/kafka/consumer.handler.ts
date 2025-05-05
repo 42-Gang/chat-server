@@ -11,8 +11,8 @@ export async function handleFriendAddEvent(
   console.log(`Friend added: ${message}`);
   const { userAId, userBId } = message;
 
-  const parsedUserAId = Number(userAId);
-  const parsedUserBId = Number(userBId);
+  const parsedUserAId = userAId;
+  const parsedUserBId = userBId;
 
   const room = await chatManager.createChatRoom(parsedUserAId, parsedUserBId);
 
@@ -26,8 +26,8 @@ export async function handleFriendBlockEvent(
 ) {
   const { fromUserId, toUserId } = message;
 
-  const blockerId = Number(fromUserId);
-  const blockedId = Number(toUserId);
+  const blockerId = fromUserId;
+  const blockedId = toUserId;
 
   console.log(`Friend blocked: ${message}`);
   await chatManager.leaveDirectMessageRoom(namespace, blockerId, blockedId);
@@ -41,8 +41,8 @@ export async function handleFriendUnblockEvent(
 ) {
   const { fromUserId, toUserId } = message;
 
-  const blockerId = Number(fromUserId);
-  const blockedId = Number(toUserId);
+  const blockerId = fromUserId;
+  const blockedId = toUserId;
 
   console.log(`Friend unblocked: ${message}`);
   await chatManager.joinDirectMessageRoom(namespace, blockerId, blockedId);

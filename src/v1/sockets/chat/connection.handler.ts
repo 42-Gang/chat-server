@@ -20,7 +20,7 @@ export async function handleConnection(socket: Socket, chatManager: ChatManager)
         socket,
         chatManager,
         userId,
-        payload,
+        payload: JSON.parse(payload),
       }),
     );
 
@@ -36,7 +36,7 @@ type HandleIncomingMessageParams = {
   socket: Socket;
   chatManager: ChatManager;
   userId: number;
-  payload: unknown;
+  payload: string;
 };
 
 async function handleIncomingMessage({
@@ -68,14 +68,13 @@ async function handleIncomingMessage({
 
 async function validateIncomingMessage(
   userId: number,
-  payload: unknown,
+  payload: string,
 ): Promise<{
   messageData: ResponseMessage;
   roomType: ChatRoomType;
   otherUserId?: number;
 }> {
-  const parsedPayload = typeof payload === 'string' ? JSON.parse(payload) : payload;
-  const { roomId, contents } = requestMessageSchema.parse(parsedPayload);
+  const { roomId, contents } = requestMessageSchema.parse(payload);
 
   const messageData: ResponseMessage = responseMessageSchema.parse({
     roomId,
