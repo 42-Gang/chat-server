@@ -14,6 +14,7 @@ export default class ChatService {
     private readonly chatMessageRepository: ChatMessageRepositoryInterface,
     private readonly chatRoomRepository: ChatRoomRepositoryInterface,
   ) {}
+
   private messagesToResponse(messages: ChatMessage) {
     return {
       id: messages.id,
@@ -47,7 +48,10 @@ export default class ChatService {
   }
 
   async getRoomId(users: TypeOf<typeof getDmRoomIdQuerySchema>) {
-    const roomId = await this.chatRoomRepository.getPrivateRoomByUserIds(users.userId, users.friendId);
+    const roomId = await this.chatRoomRepository.getPrivateRoomByUserIds(
+      users.userId,
+      users.friendId,
+    );
 
     if (!roomId) {
       throw new NotFoundException('채팅방이 존재하지 않습니다.');
@@ -55,7 +59,7 @@ export default class ChatService {
     return {
       status: STATUS.SUCCESS,
       data: {
-        roomId: roomId
+        roomId: roomId,
       },
     };
   }
