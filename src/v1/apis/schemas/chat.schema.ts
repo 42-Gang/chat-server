@@ -2,9 +2,9 @@ import { z } from 'zod';
 
 export const chatMessageSchema = z.object({
   id: z.preprocess((val) => Number(val), z.number()),
-  nickname: z.string().min(2).max(8),
+  nickname: z.string(),
   timestamp: z.date(),
-  message: z.string().min(1).max(200),
+  message: z.string(),
 });
 
 //채팅룸의 모든 메세지 로드 (GET)

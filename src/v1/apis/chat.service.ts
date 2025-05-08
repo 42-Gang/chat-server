@@ -40,7 +40,8 @@ export default class ChatService {
       throw new NotFoundException('채팅 메시지가 존재하지 않습니다.');
     }
 
-    const response = messages.map((item) => this.messagesToResponse(item));
+    const response = await Promise.all(messages.map((item) => this.messagesToResponse(item)));
+
     return {
       status: STATUS.SUCCESS,
       data: {
