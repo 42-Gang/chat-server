@@ -6,6 +6,7 @@ import {
   getMessagesResponseSchema,
 } from './schemas/get-messages.schema.js';
 import { addRoutes, Route } from '../../plugins/router.js';
+import { getDmRoomIdQuerySchema, getDmRoomIdResponseSchema } from './schemas/get-room-id.schema.js';
 
 export default async function chatRoutes(fastify: FastifyInstance) {
   const chatController: ChatController = fastify.diContainer.resolve('chatController');
@@ -21,6 +22,22 @@ export default async function chatRoutes(fastify: FastifyInstance) {
           params: getMessagesParamsSchema,
           response: {
             200: getMessagesResponseSchema,
+          },
+        },
+        auth: true,
+      },
+    },
+    {
+      method: 'GET',
+      url: '/room/dm',
+      handler: chatController.getRoomId,
+      options: {
+        schema: {
+          tags: ['chat'],
+          description: '채팅룸 아이디 조회',
+          querystring: getDmRoomIdQuerySchema,
+          response: {
+            200: getDmRoomIdResponseSchema,
           },
         },
         auth: true,

@@ -5,6 +5,8 @@ import ChatMessageRepositoryInterface from '../storage/database/prisma/chatMessa
 import { ChatMessage } from '@prisma/client';
 import { STATUS } from '../common/constants/status.js';
 import { NotFoundException, UnAuthorizedException } from '../common/exceptions/core.error.js';
+import { TypeOf } from 'zod';
+import { getDmRoomIdQuerySchema } from './schemas/get-room-id.schema.js';
 
 export default class ChatService {
   constructor(
@@ -40,6 +42,20 @@ export default class ChatService {
       status: STATUS.SUCCESS,
       data: {
         chatHistory: response,
+      },
+    };
+  }
+
+  async getRoomId(users: TypeOf<typeof getDmRoomIdQuerySchema>) {
+    const roomId = await this.chatRoomRepository.getPrivateRoomByUserIds(users.userId, users.friendId);
+
+    if (!roomId) {
+      throw new NotFoundException('채팅방이 존재하지 않습니다.');
+    }
+    return {
+      status: STATUS.SUCCESS,
+      data: {
+        roomId: roomId
       },
     };
   }
