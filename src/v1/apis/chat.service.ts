@@ -7,6 +7,7 @@ import { STATUS } from '../common/constants/status.js';
 import { NotFoundException, UnAuthorizedException } from '../common/exceptions/core.error.js';
 import { TypeOf } from 'zod';
 import { getDmRoomIdQuerySchema } from './schemas/get-room-id.schema.js';
+import { getUserNick } from '../sockets/chat/chat.client.js';
 
 export default class ChatService {
   constructor(
@@ -15,10 +16,11 @@ export default class ChatService {
     private readonly chatRoomRepository: ChatRoomRepositoryInterface,
   ) {}
 
-  private messagesToResponse(messages: ChatMessage) {
+  private async messagesToResponse(messages: ChatMessage) {
+    const nickname = await getUserNick(messages.userId);
     return {
       id: messages.id,
-      nickname: 'test',
+      nickname: nickname,
       timestamp: new Date(messages.timestamp),
       message: messages.contents,
     };
