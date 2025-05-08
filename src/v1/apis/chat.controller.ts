@@ -16,5 +16,5 @@ export default class ChatController {
     const parsed = getDmRoomIdQuerySchema.parse(request.query);
     const result = await this.chatService.getRoomId(parsed);
     reply.status(200).send(result);
-  }
+  };
 }

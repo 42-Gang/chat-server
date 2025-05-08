@@ -45,7 +45,7 @@ async function handleIncomingMessage({
   userId,
   payload,
 }: HandleIncomingMessageParams) {
-  console.log(typeof payload); 
+  console.log(typeof payload);
   try {
     const { messageData, roomType, otherUserId } = await validateIncomingMessage(userId, payload);
 
