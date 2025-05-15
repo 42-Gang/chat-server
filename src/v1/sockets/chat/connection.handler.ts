@@ -20,7 +20,7 @@ export async function handleConnection(socket: Socket, chatManager: ChatManager)
         socket,
         chatManager,
         userId,
-        payload: JSON.parse(payload),
+        payload,
       }),
     );
 
