@@ -1,8 +1,8 @@
 import { Socket } from 'socket.io';
 import ChatManager from './chat.manager.js';
-import { requestMessageSchema, ResponseMessage, responseMessageSchema } from './chat.schema.js';
+import { RequestMessage, responseMessageSchema } from './chat.schema.js';
 import { dependencies } from './chat.dependencies.js';
-import { ForbiddenException } from '../../../v1/common/exceptions/core.error.js';
+import { BadRequestException, ForbiddenException, NotFoundException } from '../../../v1/common/exceptions/core.error.js';
 import { checkBlockStatus, getUserNick } from './chat.client.js';
 import { ChatRoomType } from '@prisma/client';
 import { sendChat } from './kafka/producer.js';
@@ -36,20 +36,18 @@ type HandleIncomingMessageParams = {
   socket: Socket;
   chatManager: ChatManager;
   userId: number;
-  payload: string;
+  payload: RequestMessage;
 };
 
+//TODO : 너무 길다
 async function handleIncomingMessage({
   socket,
   chatManager,
   userId,
   payload,
 }: HandleIncomingMessageParams) {
-  console.log(typeof payload);
   try {
-    const { messageData, roomType, otherUserId } = await validateIncomingMessage(userId, payload);
-
-    socket.to(`room:${messageData.roomId}`).emit('message', messageData);
+    const { roomType, otherUserId } = await validateIncomingMessage(userId, payload);
 
     if (roomType === ChatRoomType.PRIVATE && otherUserId !== undefined) {
       const isBlocked = await checkBlockStatus(otherUserId, userId);
@@ -57,9 +55,30 @@ async function handleIncomingMessage({
       if (isBlocked || isBlockedBy) return;
     }
 
-    await chatManager.saveMessage(messageData);
-    await sendChat(messageData);
-    console.log('✅ Kafka 이벤트 전송 완료:', messageData);
+    const messageData = await chatManager.saveMessage(userId, payload);
+    console.log('메시지 저장 완료:', messageData);
+
+    //여기서부터
+    const nickname = await getUserNick(userId);
+    if (!nickname) {
+      throw new NotFoundException('사용자 정보를 찾을 수 없습니다');
+    }
+
+    const messageToSend = responseMessageSchema.parse({ //타입형으로 뺏으니까 아래와 같이 묶어소 함수고
+      roomId: messageData.roomId,
+      userId: messageData.userId,
+      messageId: messageData.id,
+      contents: messageData.contents,
+      nickname: nickname,
+      timestamp: messageData.timestamp.toISOString(),
+    });
+    //여기까기 validate 
+
+    //이거 명시적인 메세지 보냄 함수로 감싸기
+    socket.to(`room:${messageToSend.roomId}`).emit('message', messageToSend);
+
+    await sendChat(messageToSend);
+    console.log('✅ Kafka 이벤트 전송 완료:', messageToSend);
   } catch (e) {
     console.error('❌ 메시지 처리 실패:', e);
     socket.emit('error', { error: '메시지 보내기 실패' });
@@ -68,25 +87,19 @@ async function handleIncomingMessage({
 
 async function validateIncomingMessage(
   userId: number,
-  payload: string,
+  payload: RequestMessage,
 ): Promise<{
-  messageData: ResponseMessage;
   roomType: ChatRoomType;
   otherUserId?: number;
 }> {
-  const { roomId, contents } = requestMessageSchema.parse(payload);
-
-  const messageData: ResponseMessage = responseMessageSchema.parse({
-    roomId,
-    userId: userId,
-    nickname: await getUserNick(userId),
-    contents,
-    timestamp: new Date().toISOString(),
-  });
+  
+  if (typeof payload !== 'object') {
+    throw new BadRequestException('유효하지 않은 메시지 형식입니다');
+  }
 
   const [roomType, members] = await Promise.all([
-    dependencies.chatRoomRepository.getRoomType(roomId),
-    dependencies.chatJoinListRepository.findManyByRoomId(roomId),
+    dependencies.chatRoomRepository.getRoomType(payload.roomId),
+    dependencies.chatJoinListRepository.findManyByRoomId(payload.roomId),
   ]);
 
   const isUserInRoom = members.some((member) => member.userId === userId);
@@ -102,5 +115,5 @@ async function validateIncomingMessage(
     }
   }
 
-  return { messageData, roomType, otherUserId };
+  return { roomType, otherUserId };
 }

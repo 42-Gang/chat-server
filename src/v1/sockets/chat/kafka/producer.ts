@@ -14,6 +14,7 @@ export async function sendChat(chat: ResponseMessage) {
           userId: chat.userId,
           nickname: chat.nickname,
           timestamp: chat.timestamp,
+          messageId: chat.messageId,
           contents: chat.contents,
           roomId: chat.roomId,
           eventType: 'SEND',

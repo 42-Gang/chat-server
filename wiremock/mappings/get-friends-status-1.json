@@ -3,21 +3,21 @@
     "method": "GET",
     "urlPath": "/api/v1/friends/status",
     "queryParameters": {
-      "user_id": { "equalTo": "8" },
-      "friend_id": { "equalTo": "6" }
+      "user_id": { "equalTo": "2" },
+      "friend_id": { "equalTo": "1" }
     }
   },
   "response": {
     "status": 200,
     "jsonBody": {
       "data": {
-        "status": "BLOCKED"
+        "status": "ACCEPTED"
       }
     },
     "headers": {
       "Content-Type": "application/json",
       "X-Authenticated": "true",
-      "X-User-Id": "8"
+      "X-User-Id": "2"
     }
   }
 }

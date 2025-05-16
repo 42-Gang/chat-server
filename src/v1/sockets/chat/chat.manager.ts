@@ -1,12 +1,13 @@
 import { Namespace, Socket } from 'socket.io';
 import { dependencies } from './chat.dependencies.js';
-import { ResponseMessage } from './chat.schema.js';
+import { RequestMessage } from './chat.schema.js';
 import { ChatRoom, ChatRoomType } from '@prisma/client';
 import { checkBlockStatus } from './chat.client.js';
 
 export default class ChatManager {
   constructor() {}
 
+  //TODO: repository 안에 넣을 수 있는 함수
   async createChatRoom(userAId: number, userBId: number): Promise<ChatRoom> {
     const room = await dependencies.chatRoomRepository.create({
       type: 'PRIVATE',
@@ -25,6 +26,7 @@ export default class ChatManager {
     return room;
   }
 
+  //TODO: 'user:${userId}' 상수화
   async joinPersonalRoom(socket: Socket, userId: number) {
     socket.join(`user:${userId}`);
   }
@@ -57,13 +59,16 @@ export default class ChatManager {
     return true;
   }
 
-  async saveMessage(data: ResponseMessage) {
-    await dependencies.chatMessageRepository.create({
-      roomId: data.roomId,
-      userId: data.userId,
-      contents: data.contents,
-      timestamp: data.timestamp,
+  //TODO: 바로 return
+  async saveMessage(userId: number, payload: RequestMessage) {
+    const message = await dependencies.chatMessageRepository.create({
+      roomId: payload.roomId,
+      userId: userId,
+      contents: payload.contents,
+      timestamp: new Date(),
     });
+
+    return message;
   }
 
   async leaveDirectMessageRoom(namespace: Namespace, userAId: number, userBId: number) {
