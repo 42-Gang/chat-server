@@ -73,7 +73,7 @@ async function handleIncomingMessage({
     socket.to(`room:${messageToSend.roomId}`).emit('message', messageToSend);
 
     await sendChat(messageToSend);
-    console.log('✅ Kafka 이벤트 전송 완료:', messageData);
+    console.log('✅ Kafka 이벤트 전송 완료:', messageToSend);
   } catch (e) {
     console.error('❌ 메시지 처리 실패:', e);
     socket.emit('error', { error: '메시지 보내기 실패' });
