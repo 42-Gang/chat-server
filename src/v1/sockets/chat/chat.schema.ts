@@ -7,8 +7,10 @@ export const requestMessageSchema = z.object({
 
 export const responseMessageSchema = requestMessageSchema.extend({
   userId: z.number(),
-  timestamp: z.string().datetime(),
-  nickname: z.string().min(2).max(8),
+  messageId: z.number(),
+  timestamp: z.string(),
+  nickname: z.string(),
 });
 
+export type RequestMessage = z.infer<typeof requestMessageSchema>;
 export type ResponseMessage = z.infer<typeof responseMessageSchema>;
