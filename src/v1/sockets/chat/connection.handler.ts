@@ -2,7 +2,7 @@ import { Socket } from 'socket.io';
 import ChatManager from './chat.manager.js';
 import { RequestMessage, responseMessageSchema } from './chat.schema.js';
 import { dependencies } from './chat.dependencies.js';
-import { ForbiddenException, NotFoundException } from '../../../v1/common/exceptions/core.error.js';
+import { BadRequestException, ForbiddenException, NotFoundException } from '../../../v1/common/exceptions/core.error.js';
 import { checkBlockStatus, getUserNick } from './chat.client.js';
 import { ChatRoomType } from '@prisma/client';
 import { sendChat } from './kafka/producer.js';
@@ -39,6 +39,7 @@ type HandleIncomingMessageParams = {
   payload: RequestMessage;
 };
 
+//TODO : 너무 길다
 async function handleIncomingMessage({
   socket,
   chatManager,
@@ -56,12 +57,14 @@ async function handleIncomingMessage({
 
     const messageData = await chatManager.saveMessage(userId, payload);
     console.log('메시지 저장 완료:', messageData);
+
+    //여기서부터
     const nickname = await getUserNick(userId);
     if (!nickname) {
       throw new NotFoundException('사용자 정보를 찾을 수 없습니다');
     }
 
-    const messageToSend = responseMessageSchema.parse({
+    const messageToSend = responseMessageSchema.parse({ //타입형으로 뺏으니까 아래와 같이 묶어소 함수고
       roomId: messageData.roomId,
       userId: messageData.userId,
       messageId: messageData.id,
@@ -69,7 +72,9 @@ async function handleIncomingMessage({
       nickname: nickname,
       timestamp: messageData.timestamp.toISOString(),
     });
+    //여기까기 validate 
 
+    //이거 명시적인 메세지 보냄 함수로 감싸기
     socket.to(`room:${messageToSend.roomId}`).emit('message', messageToSend);
 
     await sendChat(messageToSend);
@@ -87,6 +92,11 @@ async function validateIncomingMessage(
   roomType: ChatRoomType;
   otherUserId?: number;
 }> {
+  
+  if (typeof payload !== 'object') {
+    throw new BadRequestException('유효하지 않은 메시지 형식입니다');
+  }
+
   const [roomType, members] = await Promise.all([
     dependencies.chatRoomRepository.getRoomType(payload.roomId),
     dependencies.chatJoinListRepository.findManyByRoomId(payload.roomId),

@@ -32,6 +32,7 @@ export default class ChatRoomRepositoryPrisma implements ChatRoomRepositoryInter
     return room.type;
   }
 
+  //TODO: privateRoomId로 변경 (id 반환하니까)
   async getPrivateRoomByUserIds(userAId: number, userBId: number): Promise<number | null> {
     const room = await this.prisma.chatRoom.findFirst({
       where: {

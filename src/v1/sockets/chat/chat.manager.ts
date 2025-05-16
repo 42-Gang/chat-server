@@ -7,6 +7,7 @@ import { checkBlockStatus } from './chat.client.js';
 export default class ChatManager {
   constructor() {}
 
+  //TODO: repository 안에 넣을 수 있는 함수
   async createChatRoom(userAId: number, userBId: number): Promise<ChatRoom> {
     const room = await dependencies.chatRoomRepository.create({
       type: 'PRIVATE',
@@ -25,6 +26,7 @@ export default class ChatManager {
     return room;
   }
 
+  //TODO: 'user:${userId}' 상수화
   async joinPersonalRoom(socket: Socket, userId: number) {
     socket.join(`user:${userId}`);
   }
@@ -57,6 +59,7 @@ export default class ChatManager {
     return true;
   }
 
+  //TODO: 바로 return
   async saveMessage(userId: number, payload: RequestMessage) {
     const message = await dependencies.chatMessageRepository.create({
       roomId: payload.roomId,
