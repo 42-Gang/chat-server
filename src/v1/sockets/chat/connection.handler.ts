@@ -1,13 +1,21 @@
-import { Socket } from 'socket.io';
+import { Namespace, Socket } from 'socket.io';
 import ChatManager from './chat.manager.js';
 import { RequestMessage, responseMessageSchema } from './chat.schema.js';
 import { dependencies } from './chat.dependencies.js';
-import { BadRequestException, ForbiddenException, NotFoundException } from '../../../v1/common/exceptions/core.error.js';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '../../../v1/common/exceptions/core.error.js';
 import { checkBlockStatus, getUserNick } from './chat.client.js';
 import { ChatRoomType } from '@prisma/client';
 import { sendChat } from './kafka/producer.js';
 
-export async function handleConnection(socket: Socket, chatManager: ChatManager) {
+export async function handleConnection(
+  socket: Socket,
+  chatManager: ChatManager,
+  namespace: Namespace,
+) {
   try {
     const userId = socket.data.userId;
     console.log(`🟢 [/chat] Connected: ${socket.id}, ${userId}`);
@@ -21,6 +29,7 @@ export async function handleConnection(socket: Socket, chatManager: ChatManager)
         chatManager,
         userId,
         payload,
+        namespace,
       }),
     );
 
@@ -37,6 +46,7 @@ type HandleIncomingMessageParams = {
   chatManager: ChatManager;
   userId: number;
   payload: RequestMessage;
+  namespace: Namespace;
 };
 
 //TODO : 너무 길다
@@ -45,6 +55,7 @@ async function handleIncomingMessage({
   chatManager,
   userId,
   payload,
+  namespace,
 }: HandleIncomingMessageParams) {
   try {
     const { roomType, otherUserId } = await validateIncomingMessage(userId, payload);
@@ -64,7 +75,8 @@ async function handleIncomingMessage({
       throw new NotFoundException('사용자 정보를 찾을 수 없습니다');
     }
 
-    const messageToSend = responseMessageSchema.parse({ //타입형으로 뺏으니까 아래와 같이 묶어소 함수고
+    const messageToSend = responseMessageSchema.parse({
+      //타입형으로 뺏으니까 아래와 같이 묶어소 함수고
       roomId: messageData.roomId,
       userId: messageData.userId,
       messageId: messageData.id,
@@ -72,10 +84,10 @@ async function handleIncomingMessage({
       nickname: nickname,
       timestamp: messageData.timestamp.toISOString(),
     });
-    //여기까기 validate 
 
     //이거 명시적인 메세지 보냄 함수로 감싸기
     socket.to(`room:${messageToSend.roomId}`).emit('message', messageToSend);
+    namespace.to(`user:${messageToSend.userId}`).emit('message', messageToSend);
 
     await sendChat(messageToSend);
     console.log('✅ Kafka 이벤트 전송 완료:', messageToSend);
@@ -92,7 +104,6 @@ async function validateIncomingMessage(
   roomType: ChatRoomType;
   otherUserId?: number;
 }> {
-  
   if (typeof payload !== 'object') {
     throw new BadRequestException('유효하지 않은 메시지 형식입니다');
   }

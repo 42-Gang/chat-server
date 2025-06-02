@@ -10,5 +10,5 @@ export default async function chatNamespace(namespace: Namespace) {
   const chatManager = new ChatManager();
   startConsumer(namespace, chatManager);
 
-  namespace.on('connection', (socket) => handleConnection(socket, chatManager));
+  namespace.on('connection', (socket) => handleConnection(socket, chatManager, namespace));
 }
