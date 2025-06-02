@@ -85,9 +85,7 @@ async function handleIncomingMessage({
       timestamp: messageData.timestamp.toISOString(),
     });
 
-    //이거 명시적인 메세지 보냄 함수로 감싸기
-    socket.to(`room:${messageToSend.roomId}`).emit('message', messageToSend);
-    namespace.to(`user:${messageToSend.userId}`).emit('message', messageToSend);
+    namespace.to(`room:${messageToSend.roomId}`).emit('message', messageToSend);
 
     await sendChat(messageToSend);
     console.log('✅ Kafka 이벤트 전송 완료:', messageToSend);
