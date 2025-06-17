@@ -6,7 +6,7 @@ export async function checkBlockStatus(userAId: number, userBId: number): Promis
       data: { status: 'BLOCKED' | 'PENDING' | 'ACCEPTED' | 'REJECTED' };
     }>({
       method: 'GET',
-      url: `http://${process.env.USER_SERVER_URL}/api/v1/friends/status?user_id=${userAId}&friend_id=${userBId}`,
+      url: `http://${process.env.USER_SERVER_URL}/api/v1/friends/status?userId=${userAId}&friendId=${userBId}`,
       headers: {
         'X-Authenticated': 'true',
         'X-User-Id': userAId.toString(),

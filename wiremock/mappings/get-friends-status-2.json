@@ -3,8 +3,8 @@
     "method": "GET",
     "urlPath": "/api/v1/friends/status",
     "queryParameters": {
-      "user_id": { "equalTo": "1" },
-      "friend_id": { "equalTo": "2" }
+      "userId": { "equalTo": "1" },
+      "friendId": { "equalTo": "2" }
     }
   },
   "response": {

@@ -33,8 +33,8 @@ export default class ChatManager {
 
   async joinChatRooms(socket: Socket, userId: number) {
     const chatRooms = await dependencies.chatJoinListRepository.findManyByUserId(userId);
-    if (chatRooms) {
-      chatRooms.forEach((room) => {
+    if (chatRooms) { //!chatRoom 이면 리턴하도록 하는게 좋을 듯
+      chatRooms.forEach((room) => {//forEach는 어울리지 않음
         const isValid = this.validateRoom(userId, room.roomId);
         if (!isValid) return;
         socket.join(`room:${room.roomId}`);
@@ -42,6 +42,7 @@ export default class ChatManager {
     }
   }
 
+  //함수 이름을 isValidRoom으로 변경하는게 좋을 듯 -> true false 반환이니까
   async validateRoom(userId: number, roomId: number) {
     const [roomType, members] = await Promise.all([
       dependencies.chatRoomRepository.getRoomType(roomId),
@@ -53,7 +54,6 @@ export default class ChatManager {
     const otherUser = members.find((m) => m.userId !== userId);
     if (!otherUser) throw new Error('1:1 채팅방에 다른 유저가 존재하지 않습니다');
 
-    console.log('otherUser', otherUser);
     const isBlocked = await checkBlockStatus(userId, otherUser.userId);
     if (isBlocked) return false;
     return true;
