@@ -34,11 +34,11 @@ export default class ChatManager {
   async joinChatRooms(socket: Socket, userId: number) {
     const chatRooms = await dependencies.chatJoinListRepository.findManyByUserId(userId);
     if (chatRooms) { //!chatRoom 이면 리턴하도록 하는게 좋을 듯
-      chatRooms.forEach((room) => {//forEach는 어울리지 않음
-        const isValid = this.validateRoom(userId, room.roomId);
-        if (!isValid) return;
+      for (const room of chatRooms) {
+        const isValid = await this.validateRoom(userId, room.roomId);
+        if (!isValid) continue;
         socket.join(`room:${room.roomId}`);
-      });
+      }
     }
   }
 
