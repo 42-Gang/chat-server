@@ -38,14 +38,14 @@ export default class ChatManager {
         return;
       }
       for (const room of chatRooms) {
-        const isValid = await this.validateRoom(userId, room.roomId);
+        const isValid = await this.isValidRoom(userId, room.roomId);
         if (!isValid) continue;
         socket.join(`room:${room.roomId}`);
       }
   }
 
   //함수 이름을 isValidRoom으로 변경하는게 좋을 듯 -> true false 반환이니까
-  async validateRoom(userId: number, roomId: number) {
+  async isValidRoom(userId: number, roomId: number) {
     const [roomType, members] = await Promise.all([
       dependencies.chatRoomRepository.getRoomType(roomId),
       dependencies.chatJoinListRepository.findManyByRoomId(roomId),
