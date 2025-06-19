@@ -33,13 +33,15 @@ export default class ChatManager {
 
   async joinChatRooms(socket: Socket, userId: number) {
     const chatRooms = await dependencies.chatJoinListRepository.findManyByUserId(userId);
-    if (chatRooms) { //!chatRoom 이면 리턴하도록 하는게 좋을 듯
+      if (!chatRooms || chatRooms.length === 0) {
+        console.log(`No chat rooms found for user ${userId}`);
+        return;
+      }
       for (const room of chatRooms) {
         const isValid = await this.validateRoom(userId, room.roomId);
         if (!isValid) continue;
         socket.join(`room:${room.roomId}`);
       }
-    }
   }
 
   //함수 이름을 isValidRoom으로 변경하는게 좋을 듯 -> true false 반환이니까
