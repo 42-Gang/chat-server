@@ -37,11 +37,14 @@ export default class ChatManager {
       console.log(`No chat rooms found for user ${userId}`);
       return;
     }
-    for (const room of chatRooms) {
-      const isValid = await this.isChatRoomAccessible(userId, room.roomId);
-      if (!isValid) continue;
-      socket.join(`room:${room.roomId}`);
-    }
+    await Promise.all(
+      chatRooms.map(async (room) => {
+        const isValid = await this.isChatRoomAccessible(userId, room.roomId);
+        if (isValid) {
+          socket.join(`room:${room.roomId}`);
+        }
+      })
+    );
   }
 
   async isChatRoomAccessible(userId: number, roomId: number) {
