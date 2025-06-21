@@ -38,13 +38,13 @@ export default class ChatManager {
       return;
     }
     for (const room of chatRooms) {
-      const isValid = await this.isValidRoom(userId, room.roomId);
+      const isValid = await this.isChatRoomAccessible(userId, room.roomId);
       if (!isValid) continue;
       socket.join(`room:${room.roomId}`);
     }
   }
 
-  async isValidRoom(userId: number, roomId: number) {
+  async isChatRoomAccessible(userId: number, roomId: number) {
     const [roomType, members] = await Promise.all([
       dependencies.chatRoomRepository.getRoomType(roomId),
       dependencies.chatJoinListRepository.findManyByRoomId(roomId),
