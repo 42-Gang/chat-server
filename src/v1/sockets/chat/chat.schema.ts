@@ -14,4 +14,3 @@ export const responseMessageSchema = requestMessageSchema.extend({
 
 export type RequestMessage = z.infer<typeof requestMessageSchema>;
 export type ResponseMessage = z.infer<typeof responseMessageSchema>;
-//뒤에 type 붙이기
