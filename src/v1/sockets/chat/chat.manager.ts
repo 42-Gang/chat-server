@@ -33,16 +33,21 @@ export default class ChatManager {
 
   async joinChatRooms(socket: Socket, userId: number) {
     const chatRooms = await dependencies.chatJoinListRepository.findManyByUserId(userId);
-    if (chatRooms) {
-      chatRooms.forEach((room) => {
-        const isValid = this.validateRoom(userId, room.roomId);
-        if (!isValid) return;
-        socket.join(`room:${room.roomId}`);
-      });
+    if (!chatRooms || chatRooms.length === 0) {
+      console.log(`No chat rooms found for user ${userId}`);
+      return;
     }
+    await Promise.all(
+      chatRooms.map(async (room) => {
+        const isValid = await this.isChatRoomAccessible(userId, room.roomId);
+        if (isValid) {
+          socket.join(`room:${room.roomId}`);
+        }
+      })
+    );
   }
 
-  async validateRoom(userId: number, roomId: number) {
+  async isChatRoomAccessible(userId: number, roomId: number) {
     const [roomType, members] = await Promise.all([
       dependencies.chatRoomRepository.getRoomType(roomId),
       dependencies.chatJoinListRepository.findManyByRoomId(roomId),
@@ -53,9 +58,10 @@ export default class ChatManager {
     const otherUser = members.find((m) => m.userId !== userId);
     if (!otherUser) throw new Error('1:1 채팅방에 다른 유저가 존재하지 않습니다');
 
-    console.log('otherUser', otherUser);
     const isBlocked = await checkBlockStatus(userId, otherUser.userId);
     if (isBlocked) return false;
+    const isOtherUserBlocked = await checkBlockStatus(otherUser.userId, userId);
+    if (isOtherUserBlocked) return false;
     return true;
   }
 
