@@ -43,7 +43,7 @@ export default class ChatManager {
         if (isValid) {
           socket.join(`room:${room.roomId}`);
         }
-      })
+      }),
     );
   }
 
