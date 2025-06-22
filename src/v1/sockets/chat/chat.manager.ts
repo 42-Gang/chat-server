@@ -43,7 +43,7 @@ export default class ChatManager {
         if (isValid) {
           socket.join(`room:${room.roomId}`);
         }
-      })
+      }),
     );
   }
 
@@ -60,8 +60,6 @@ export default class ChatManager {
 
     const isBlocked = await checkBlockStatus(userId, otherUser.userId);
     if (isBlocked) return false;
-    const isOtherUserBlocked = await checkBlockStatus(otherUser.userId, userId);
-    if (isOtherUserBlocked) return false;
     return true;
   }
 
