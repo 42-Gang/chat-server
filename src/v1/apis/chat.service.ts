@@ -17,16 +17,6 @@ export default class ChatService {
     private readonly logger: FastifyBaseLogger,
   ) {}
 
-  // private async messagesToResponse(messages: ChatMessage) {
-  //   const nickname = await getUserNick(messages.userId);
-  //   return {
-  //     id: messages.id,
-  //     nickname: nickname,
-  //     timestamp: new Date(messages.timestamp),
-  //     message: messages.contents,
-  //   };
-  // }
-
   async loadMessages(roomId: number, userId: number | undefined) {
     const room = await this.chatRoomRepository.findById(roomId);
     if (!room) throw new NotFoundException('채팅방이 존재하지 않습니다.');
