@@ -1,5 +1,3 @@
-import ChatRoomRepositoryInterface from '../storage/database/interfaces/chatRoom.repository.interface.js';
-import ChatJoinListRepositoryInterface from '../storage/database/prisma/chatJoinList.repository.js';
 import ChatMessageRepositoryInterface from '../storage/database/prisma/chatMessage.repository.js';
 
 import { STATUS } from '../common/constants/status.js';
@@ -8,20 +6,20 @@ import { TypeOf } from 'zod';
 import { getDmRoomIdQuerySchema } from './schemas/get-room-id.schema.js';
 import { getUserNick } from '../sockets/chat/chat.client.js';
 import { FastifyBaseLogger } from 'fastify';
+import ChatRoomRepositoryPrisma from '../storage/database/prisma/chatRoom.repository.js';
 
 export default class ChatService {
   constructor(
-    private readonly chatJoinListRepository: ChatJoinListRepositoryInterface,
     private readonly chatMessageRepository: ChatMessageRepositoryInterface,
-    private readonly chatRoomRepository: ChatRoomRepositoryInterface,
+    private readonly chatRoomRepository: ChatRoomRepositoryPrisma,
     private readonly logger: FastifyBaseLogger,
   ) {}
 
   async loadMessages(roomId: number, userId: number | undefined) {
-    const room = await this.chatRoomRepository.findById(roomId);
-    if (!room) throw new NotFoundException('채팅방이 존재하지 않습니다.');
+    const roomWithMembers = await this.chatRoomRepository.findByIdJoinMembers(roomId);
+    if (!roomWithMembers) throw new NotFoundException('채팅방이 존재하지 않습니다.');
 
-    const chatJoinList = await this.chatJoinListRepository.findManyByRoomId(roomId);
+    const chatJoinList = roomWithMembers.members;
     if (!chatJoinList || !chatJoinList.some((user) => user.userId === userId)) {
       throw new UnAuthorizedException('사용자가 포함된 채팅방이 아닙니다.');
     }
