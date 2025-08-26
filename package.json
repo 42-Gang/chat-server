@@ -61,7 +61,8 @@
     "redis": "^4.7.0",
     "socket.io": "^4.8.1",
     "uuid": "^11.1.0",
-    "zod": "^3.24.2"
+    "zod": "^3.24.2",
+    "prisma": "^6.5.0"
   },
   "devDependencies": {
     "@eslint/config-array": "^0.19.2",
@@ -81,7 +82,6 @@
     "glob": "^11.0.1",
     "globals": "^16.0.0",
     "prettier": "^3.5.3",
-    "prisma": "^6.5.0",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.27.0",

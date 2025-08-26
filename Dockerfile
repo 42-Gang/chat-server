@@ -19,9 +19,8 @@ WORKDIR /usr/src/app
 RUN corepack enable \
  && corepack prepare pnpm@latest --activate
 
-# package.json, lockfile 복사 후 devDependencies 포함 설치
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --prod --frozen-lockfile
 
 # 빌드 결과와 Prisma Client 복사
 COPY --from=builder /app/dist ./dist
