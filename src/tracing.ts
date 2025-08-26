@@ -22,13 +22,13 @@ const sdk = new NodeSDK({
           span.setAttributes({
             'kafka.topic': topic,
             'kafka.message.key': message.key ? message.key.toString() : undefined,
-            'kafka.message.value': message.value ? message.value.toString() : undefined,
+            'kafka.message.value.length': message.value ? message.value.length : undefined,
           }),
         consumerHook: (span, { topic, message }) =>
           span.setAttributes({
             'kafka.topic': topic,
             'kafka.message.key': message.key ? message.key.toString() : undefined,
-            'kafka.message.value': message.value ? message.value.toString() : undefined,
+            'kafka.message.value.length': message.value ? message.value.length : undefined,
           }),
       },
     }),
