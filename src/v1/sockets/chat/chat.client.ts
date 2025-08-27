@@ -1,4 +1,5 @@
 import { gotClient } from '../../../plugins/http.client.js';
+import { getLogger } from '../../../plugins/logger.js';
 
 export async function checkBlockStatus(userAId: number, userBId: number): Promise<boolean> {
   try {
@@ -15,9 +16,7 @@ export async function checkBlockStatus(userAId: number, userBId: number): Promis
     if (friendStatus.body.data.status === 'BLOCKED') return true;
     return false;
   } catch (e) {
-    console.error('Error checking block status:', e);
-    console.error('User A ID:', userAId);
-    console.error('User B ID:', userBId);
+    getLogger().warn({ err: e, userAId, userBId }, 'checkBlockStatus failed');
     return false;
   }
 }
@@ -39,8 +38,7 @@ export async function getUserNick(userId: number): Promise<string | undefined> {
     });
     return friendStatus.body.data.nickname;
   } catch (e) {
-    console.error('Error getting user nickname', e);
-    console.error('User ID:', userId);
+    getLogger().warn({ err: e, userId }, 'getUserNick failed');
     return undefined;
   }
 }

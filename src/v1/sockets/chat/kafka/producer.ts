@@ -1,9 +1,13 @@
 import { TOPICS } from './constants.js';
 import { producer } from '../../../../plugins/kafka.js';
 import { ResponseMessage } from '../chat.schema.js';
+import { getLogger } from '../../../../plugins/logger.js';
 
 export async function sendChat(chat: ResponseMessage) {
-  console.log(`Sending chat event to Kafka`);
+  getLogger().info(
+    { roomId: chat.roomId, messageId: chat.messageId },
+    'sending chat event to Kafka',
+  );
 
   await producer.send({
     topic: TOPICS.CHAT,

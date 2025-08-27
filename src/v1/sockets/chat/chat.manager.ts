@@ -3,6 +3,7 @@ import { dependencies } from './chat.dependencies.js';
 import { RequestMessage } from './chat.schema.js';
 import { ChatRoom, ChatRoomType } from '@prisma/client';
 import { checkBlockStatus } from './chat.client.js';
+import { getLogger } from '../../../plugins/logger.js';
 
 export default class ChatManager {
   constructor() {}
@@ -34,7 +35,7 @@ export default class ChatManager {
   async joinChatRooms(socket: Socket, userId: number) {
     const chatRooms = await dependencies.chatJoinListRepository.findManyByUserId(userId);
     if (!chatRooms || chatRooms.length === 0) {
-      console.log(`No chat rooms found for user ${userId}`);
+      getLogger().debug({ userId }, 'No chat rooms found for user');
       return;
     }
     await Promise.all(
@@ -80,7 +81,7 @@ export default class ChatManager {
     const roomId = await dependencies.chatRoomRepository.getPrivateRoomByUserIds(userAId, userBId);
 
     userSocketA?.socketsLeave(`room:${roomId}`);
-    console.log(`🟡 ${userAId} left room:${roomId}`);
+    getLogger().info({ userId: userAId, roomId }, 'left room');
   }
 
   async joinDirectMessageRoom(namespace: Namespace, userAId: number, userBId: number) {
@@ -88,7 +89,7 @@ export default class ChatManager {
     const roomId = await dependencies.chatRoomRepository.getPrivateRoomByUserIds(userAId, userBId);
 
     userSocketA?.socketsJoin(`room:${roomId}`);
-    console.log(`🟡 ${userAId} join room:${roomId}`);
+    getLogger().info({ userId: userAId, roomId }, 'join room');
   }
 
   async addParticipantsToRoom(namespace: Namespace, roomId: number, ...userIds: number[]) {

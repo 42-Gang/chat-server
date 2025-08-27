@@ -3,11 +3,12 @@ import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentation
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { PrismaInstrumentation } from '@prisma/instrumentation';
 import { Span } from '@opentelemetry/api';
+import { getLogger } from './plugins/logger.js';
 
 if (!process.env.JAEGER_ENDPOINT) {
   throw new Error('JAEGER_ENDPOINT environment variable is not set');
 }
-console.log(`Using Jaeger endpoint: ${process.env.JAEGER_ENDPOINT}`);
+getLogger().info({ jaeger: process.env.JAEGER_ENDPOINT }, 'Using Jaeger endpoint');
 
 interface KafkajsMessage {
   key?: Buffer | string | null;

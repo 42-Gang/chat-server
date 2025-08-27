@@ -8,6 +8,7 @@ import {
   handleUserLogout,
 } from './consumer.handler.js';
 import ChatManager from '../chat.manager.js';
+import { getLogger } from '../../../../plugins/logger.js';
 
 const consumer = kafka.consumer({ groupId: GROUP_IDS.FRIEND, sessionTimeout: 10000 });
 
@@ -19,12 +20,13 @@ export async function startConsumer(namespace: Namespace, chatManager: ChatManag
   await consumer.run({
     eachMessage: async ({ topic, message }) => {
       if (!message.value) {
-        return console.warn(`Null message value for topic ${topic}`);
+        getLogger().warn({ topic }, 'Null message value');
+        return;
       }
 
       try {
         const parsedMessage = JSON.parse(message.value.toString());
-        console.log('parsedMessage', parsedMessage);
+        getLogger().debug({ topic, message: parsedMessage }, 'Kafka message received');
 
         if (parsedMessage.eventType === FRIEND_EVENTS.ADDED) {
           await handleFriendAddEvent(parsedMessage, namespace, chatManager);
@@ -43,11 +45,9 @@ export async function startConsumer(namespace: Namespace, chatManager: ChatManag
           return;
         }
       } catch (error) {
-        console.error(
-          `❌ Error handling message from topic ${topic}:`,
-          error,
-          'Raw message:',
-          message.value.toString(),
+        getLogger().error(
+          { err: error, topic, raw: message.value.toString() },
+          '❌ Error handling Kafka message',
         );
       }
     },

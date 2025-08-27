@@ -13,7 +13,7 @@ export default async function app(fastify: FastifyInstance) {
 
 function setErrorHandler(fastify: FastifyInstance) {
   fastify.setErrorHandler((error: FastifyError, request: FastifyRequest, reply: FastifyReply) => {
-    fastify.log.error(error);
+    fastify.log.error({ err: error, route: request.url, method: request.method }, 'request error');
     const statusCode: number = error.statusCode || 500;
     reply.code(statusCode).send({
       status: STATUS.ERROR,
@@ -54,7 +54,6 @@ function setMiddleware(fastify: FastifyInstance) {
 
 function setDecorate(fastify: FastifyInstance) {
   fastify.decorate('authenticate', async (request: FastifyRequest, reply: FastifyReply) => {
-    console.log(request.authenticated);
     if (!request.authenticated) {
       reply.code(401).send({
         status: STATUS.ERROR,
