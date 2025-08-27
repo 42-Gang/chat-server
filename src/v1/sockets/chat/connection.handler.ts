@@ -13,6 +13,8 @@ import { sendChat } from './kafka/producer.js';
 import { getLogger } from '../../../plugins/logger.js';
 import { trace } from '@opentelemetry/api';
 
+const TRACER_NAME = 'chat-service';
+
 export async function handleConnection(
   socket: Socket,
   chatManager: ChatManager,
@@ -22,7 +24,7 @@ export async function handleConnection(
     const userId = socket.data.userId;
     getLogger().info({ sid: socket.id, userId }, '[/chat] connected');
 
-    const tracer = trace.getTracer('chat-service');
+    const tracer = trace.getTracer(TRACER_NAME);
     await tracer.startActiveSpan('socket.connection', async (span) => {
       try {
         await chatManager.joinPersonalRoom(socket, userId);
@@ -33,7 +35,7 @@ export async function handleConnection(
     });
 
     socket.on('message', async (payload) => {
-      const tracer = trace.getTracer('chat-service');
+      const tracer = trace.getTracer(TRACER_NAME);
       await tracer.startActiveSpan('socket.message', async (span) => {
         try {
           await handleIncomingMessage({ socket, chatManager, userId, payload, namespace });
