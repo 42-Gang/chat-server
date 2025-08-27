@@ -47,7 +47,7 @@ export async function startConsumer(namespace: Namespace, chatManager: ChatManag
       } catch (error) {
         getLogger().error(
           { err: error, topic, raw: message.value.toString() },
-          '❌ Error handling Kafka message',
+          'Error handling Kafka message',
         );
       }
     },
