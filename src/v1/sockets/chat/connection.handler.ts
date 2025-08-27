@@ -32,9 +32,9 @@ export async function handleConnection(
       }
     });
 
-    socket.on('message', (payload) => {
+    socket.on('message', async (payload) => {
       const tracer = trace.getTracer('chat-service');
-      void tracer.startActiveSpan('socket.message', async (span) => {
+      await tracer.startActiveSpan('socket.message', async (span) => {
         try {
           await handleIncomingMessage({ socket, chatManager, userId, payload, namespace });
         } catch (err) {
