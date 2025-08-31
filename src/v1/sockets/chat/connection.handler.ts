@@ -6,10 +6,14 @@ import {
   BadRequestException,
   ForbiddenException,
   NotFoundException,
-} from '../../../v1/common/exceptions/core.error.js';
+} from '../../common/exceptions/core.error.js';
 import { checkBlockStatus, getUserNick } from './chat.client.js';
 import { ChatRoomType } from '@prisma/client';
 import { sendChat } from './kafka/producer.js';
+import { getLogger } from '../../../plugins/logger.js';
+import { trace } from '@opentelemetry/api';
+
+const TRACER_NAME = 'chat-service';
 
 export async function handleConnection(
   socket: Socket,
@@ -18,26 +22,36 @@ export async function handleConnection(
 ) {
   try {
     const userId = socket.data.userId;
-    console.log(`🟢 [/chat] Connected: ${socket.id}, ${userId}`);
+    getLogger().info({ sid: socket.id, userId }, '[/chat] connected');
 
-    await chatManager.joinPersonalRoom(socket, userId);
-    await chatManager.joinChatRooms(socket, userId);
+    const tracer = trace.getTracer(TRACER_NAME);
+    await tracer.startActiveSpan('socket.connection', async (span) => {
+      try {
+        await chatManager.joinPersonalRoom(socket, userId);
+        await chatManager.joinChatRooms(socket, userId);
+      } finally {
+        span.end();
+      }
+    });
 
-    socket.on('message', (payload) =>
-      handleIncomingMessage({
-        socket,
-        chatManager,
-        userId,
-        payload,
-        namespace,
-      }),
-    );
+    socket.on('message', async (payload) => {
+      const tracer = trace.getTracer(TRACER_NAME);
+      await tracer.startActiveSpan('socket.message', async (span) => {
+        try {
+          await handleIncomingMessage({ socket, chatManager, userId, payload, namespace });
+        } catch (err) {
+          getLogger().error({ err, sid: socket.id }, 'message handler error');
+        } finally {
+          span.end();
+        }
+      });
+    });
 
     socket.on('disconnect', async () => {
-      console.log(`🔴 [/chat] Disconnected: ${socket.id}`);
+      getLogger().info({ sid: socket.id }, '[/chat] disconnected');
     });
   } catch (error) {
-    console.error(`Error in connection handler: ${error}`);
+    getLogger().error({ err: error, sid: socket.id }, 'connection handler error');
   }
 }
 
@@ -67,16 +81,14 @@ async function handleIncomingMessage({
     }
 
     const messageData = await chatManager.saveMessage(userId, payload);
-    console.log('메시지 저장 완료:', messageData);
+    getLogger().info({ messageId: messageData.id, roomId: messageData.roomId }, 'message saved');
 
-    //여기서부터
     const nickname = await getUserNick(userId);
     if (!nickname) {
       throw new NotFoundException('사용자 정보를 찾을 수 없습니다');
     }
 
     const messageToSend = responseMessageSchema.parse({
-      //타입형으로 뺏으니까 아래와 같이 묶어소 함수고
       roomId: messageData.roomId,
       userId: messageData.userId,
       messageId: messageData.id,
@@ -88,9 +100,12 @@ async function handleIncomingMessage({
     namespace.to(`room:${messageToSend.roomId}`).emit('message', messageToSend);
 
     await sendChat(messageToSend);
-    console.log('✅ Kafka 이벤트 전송 완료:', messageToSend);
+    getLogger().info(
+      { roomId: messageToSend.roomId, messageId: messageToSend.messageId },
+      'kafka event sent',
+    );
   } catch (e) {
-    console.error('❌ 메시지 처리 실패:', e);
+    getLogger().error({ err: e, sid: socket.id }, 'message handling failed');
     socket.emit('error', { error: '메시지 보내기 실패' });
   }
 }

@@ -1,4 +1,5 @@
 import Fastify, { FastifyInstance } from 'fastify';
+import { getPinoOptions } from './plugins/logger.js';
 
 export function createServer() {
   return Fastify({
@@ -15,7 +16,7 @@ export function createServer() {
 export function getLoggerOptions() {
   if (process.env.NODE_ENV === 'dev') {
     return {
-      level: 'debug',
+      ...getPinoOptions(),
       transport: {
         target: 'pino-pretty',
         options: {
@@ -25,7 +26,9 @@ export function getLoggerOptions() {
       },
     };
   }
-  return { level: process.env.LOG_LEVEL || 'info' };
+  return {
+    ...getPinoOptions(),
+  };
 }
 
 export async function startServer(server: FastifyInstance) {

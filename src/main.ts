@@ -1,9 +1,13 @@
 import { createServer, startServer } from './server-utils.js';
 import { configureServer, registerPlugins, setupGracefulShutdown } from './server-config.js';
 import { createSocketServer } from './plugins/socket.js';
+import { setLogger } from './plugins/logger.js';
+import { Logger } from 'pino';
 
 async function init() {
   const server = createServer();
+  setLogger(server.log as Logger);
+
   await configureServer(server); // 서버 설정
   await registerPlugins(server); // 플러그인 등록
 

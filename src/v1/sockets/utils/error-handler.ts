@@ -1,8 +1,10 @@
+import { getLogger } from '../../../plugins/logger.js';
+
 export function socketErrorHandler<Args extends unknown[], Return>(
   handler: (...args: Args) => Return | Promise<Return>,
 ): (...args: Args) => void {
   const handleError = (err: unknown) => {
-    console.error('please handle me', err);
+    getLogger().error({ err }, 'socket handler error');
   };
 
   return (...args: Args): void => {
