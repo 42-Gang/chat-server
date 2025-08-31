@@ -42,60 +42,59 @@ function getTraceContextFields(): Record<string, unknown> {
   };
 }
 
-export function getPinoOptions(): LoggerOptions {
-  const errSerializer = (error: unknown) => {
-    const o = isObject(error) ? error : {};
-    const name = getString(o, 'name') || 'Error';
-    const message = getString(o, 'message') || String(error);
-    const code = getString(o, 'code');
+const errSerializer = (rowError: unknown) => {
+  const error = isObject(rowError) ? rowError : {};
+  const name = getString(error, 'name') || 'Error';
+  const message = getString(error, 'message') || String(rowError);
+  const code = getString(error, 'code');
 
-    const response = getObject(o, 'response');
-    const statusCode =
-      (response && getNumber(response, 'statusCode')) ?? getNumber(o, 'statusCode');
+  const response = getObject(error, 'response');
+  const statusCode =
+    (response && getNumber(response, 'statusCode')) ?? getNumber(error, 'statusCode');
 
-    const options = getObject(o, 'options');
-    const method = options ? getString(options, 'method') : undefined;
-    const urlRaw = options ? (options['url'] as unknown) : undefined;
-    const request = getObject(o, 'request');
-    const requestUrl = request ? getString(request, 'requestUrl') : undefined;
+  const options = getObject(error, 'options');
+  const method = options ? getString(options, 'method') : undefined;
+  const urlRaw = options ? (options['url'] as unknown) : undefined;
+  const request = getObject(error, 'request');
+  const requestUrl = request ? getString(request, 'requestUrl') : undefined;
 
-    // Detect got HTTPError-like
-    const isGotHttpError =
-      name === 'HTTPError' || code === 'ERR_NON_2XX_3XX_RESPONSE' || !!response;
+  // Detect got HTTPError-like
+  const isGotHttpError = name === 'HTTPError' || code === 'ERR_NON_2XX_3XX_RESPONSE' || !!response;
 
-    const stackRaw = getString(o, 'stack');
-    const stack = stackRaw ? stackRaw : undefined;
+  const stackRaw = getString(error, 'stack');
+  const stack = stackRaw ? stackRaw : undefined;
 
-    const base: Record<string, unknown> = { name, message };
-    if (code) base.code = code;
-    if (typeof statusCode === 'number') base.statusCode = statusCode;
-    if (stack) base.stack = stack;
+  const base: Record<string, unknown> = { name, message };
+  if (code) base.code = code;
+  if (typeof statusCode === 'number') base.statusCode = statusCode;
+  if (stack) base.stack = stack;
 
-    if (isGotHttpError) {
-      let url: string | undefined;
-      if (typeof urlRaw === 'string') url = urlRaw;
-      else if (
-        isObject(urlRaw) &&
-        typeof (urlRaw as { toString?: () => string }).toString === 'function'
-      ) {
-        try {
-          url = (urlRaw as { toString: () => string }).toString();
-        } catch {
-          url = requestUrl;
-        }
-      } else {
+  if (isGotHttpError) {
+    let url: string | undefined;
+    if (typeof urlRaw === 'string') url = urlRaw;
+    else if (
+      isObject(urlRaw) &&
+      typeof (urlRaw as { toString?: () => string }).toString === 'function'
+    ) {
+      try {
+        url = (urlRaw as { toString: () => string }).toString();
+      } catch {
         url = requestUrl;
       }
-
-      base.http = {
-        method,
-        url,
-      };
+    } else {
+      url = requestUrl;
     }
 
-    return base;
-  };
+    base.http = {
+      method,
+      url,
+    };
+  }
 
+  return base;
+};
+
+export function getPinoOptions(): LoggerOptions {
   return {
     level: process.env.LOG_LEVEL || 'info',
     redact: {
