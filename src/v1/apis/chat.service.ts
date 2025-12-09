@@ -37,6 +37,7 @@ export default class ChatService {
     if (!messages) {
       throw new NotFoundException('채팅 메시지가 존재하지 않습니다.');
     }
+    messages.reverse();
 
     const members: Record<number, string> = Object.fromEntries(
       await Promise.all(
