@@ -1,13 +1,13 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/api/v1/users/2",
+    "urlPath": "/api/v1/users/111",
     "headers": {
       "X-Authenticated": {
         "equalTo": "true"
       },
       "X-User-Id": {
-        "equalTo": "2"
+        "equalTo": "111"
       }
     }
   },
@@ -15,7 +15,7 @@
     "status": 200,
     "jsonBody": {
       "data": {
-        "nickname": "hehe",
+        "nickname": "hehe111",
         "avatar": "https://example.com/avatar/8.png"
       }
     },
