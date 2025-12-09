@@ -7,5 +7,9 @@ export default interface ChatMessageRepositoryInterface
     Prisma.ChatMessageCreateInput,
     Prisma.ChatMessageUpdateInput
   > {
-  findManyByRoomId(roomId: number): Promise<ChatMessage[]>;
+  findManyByRoomId(args: {
+    roomId: number;
+    nextCursor: number | undefined;
+    limit: number;
+  }): Promise<ChatMessage[]>;
 }

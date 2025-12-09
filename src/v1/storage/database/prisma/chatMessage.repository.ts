@@ -24,7 +24,17 @@ export default class ChatMessageRepositoryPrisma implements ChatMessageRepositor
     return this.prisma.chatMessage.update({ where: { id }, data });
   }
 
-  findManyByRoomId(roomId: number): Promise<ChatMessage[]> {
-    return this.prisma.chatMessage.findMany({ where: { roomId }, orderBy: { timestamp: 'asc' } });
+  findManyByRoomId(args: {
+    roomId: number;
+    nextCursor: number | undefined;
+    limit: number;
+  }): Promise<ChatMessage[]> {
+    const { roomId, nextCursor, limit } = args;
+
+    return this.prisma.chatMessage.findMany({
+      where: { roomId, id: { lt: nextCursor } },
+      orderBy: { id: 'desc' },
+      take: limit,
+    });
   }
 }

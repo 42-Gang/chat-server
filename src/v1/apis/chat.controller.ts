@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import ChatService from './chat.service.js';
-import { getMessagesParamsSchema } from './schemas/get-messages.schema.js';
+import { getMessagesParamsSchema, getMessagesQuerySchema } from './schemas/get-messages.schema.js';
 import { getDmRoomIdQuerySchema } from './schemas/get-room-id.schema.js';
 
 export default class ChatController {
@@ -8,7 +8,13 @@ export default class ChatController {
 
   loadMessages = async (request: FastifyRequest, reply: FastifyReply) => {
     const params = getMessagesParamsSchema.parse(request.params);
-    const result = await this.chatService.loadMessages(params.roomId, request.userId);
+    const query = getMessagesQuerySchema.parse(request.query);
+    const result = await this.chatService.loadMessages(
+      params.roomId,
+      request.userId,
+      query.nextCursor,
+      query.limit,
+    );
     reply.code(200).send(result);
   };
 
