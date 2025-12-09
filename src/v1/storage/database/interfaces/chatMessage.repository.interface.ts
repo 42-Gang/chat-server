@@ -9,7 +9,7 @@ export default interface ChatMessageRepositoryInterface
   > {
   findManyByRoomId(args: {
     roomId: number;
-    nextCursor: number | undefined;
+    cursor: number | undefined;
     limit: number;
-  }): Promise<ChatMessage[]>;
+  }): Promise<{ messages: ChatMessage[]; hasNext: boolean; nextCursor: number | undefined }>;
 }

@@ -18,7 +18,7 @@ export default class ChatService {
   async loadMessages(
     roomId: number,
     userId: number | undefined,
-    nextCursor: number | undefined,
+    cursor: number | undefined,
     limit: number,
   ) {
     const roomWithMembers = await this.chatRoomRepository.findByIdJoinMembers(roomId);
@@ -29,9 +29,9 @@ export default class ChatService {
       throw new UnAuthorizedException('사용자가 포함된 채팅방이 아닙니다.');
     }
 
-    const messages = await this.chatMessageRepository.findManyByRoomId({
+    const { messages, hasNext, nextCursor } = await this.chatMessageRepository.findManyByRoomId({
       roomId,
-      nextCursor,
+      cursor,
       limit,
     });
     if (!messages) {
@@ -64,6 +64,8 @@ export default class ChatService {
       status: STATUS.SUCCESS,
       data: {
         chatHistory: response,
+        hasNext,
+        nextCursor,
       },
     };
   }

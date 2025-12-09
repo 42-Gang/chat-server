@@ -5,6 +5,8 @@ import { chatMessageSchema } from './chat.schema.js';
 export const getMessagesResponseSchema = createResponseSchema(
   z.object({
     chatHistory: z.array(chatMessageSchema),
+    hasNext: z.boolean(),
+    nextCursor: z.number().optional(),
   }),
 );
 
