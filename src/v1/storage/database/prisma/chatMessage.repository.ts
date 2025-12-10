@@ -32,7 +32,7 @@ export default class ChatMessageRepositoryPrisma implements ChatMessageRepositor
     const { roomId, cursor, limit } = args;
 
     const messages = await this.prisma.chatMessage.findMany({
-      where: { roomId, id: { lte: cursor } },
+      where: { roomId, ...(cursor !== undefined && { id: { lte: cursor } }) },
       orderBy: { id: 'desc' },
       take: limit + 1,
     });
