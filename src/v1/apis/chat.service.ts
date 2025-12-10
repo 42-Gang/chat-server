@@ -15,7 +15,12 @@ export default class ChatService {
     private readonly logger: FastifyBaseLogger,
   ) {}
 
-  async loadMessages(roomId: number, userId: number | undefined) {
+  async loadMessages(
+    roomId: number,
+    userId: number | undefined,
+    cursor: number | undefined,
+    limit: number,
+  ) {
     const roomWithMembers = await this.chatRoomRepository.findByIdJoinMembers(roomId);
     if (!roomWithMembers) throw new NotFoundException('채팅방이 존재하지 않습니다.');
 
@@ -24,10 +29,12 @@ export default class ChatService {
       throw new UnAuthorizedException('사용자가 포함된 채팅방이 아닙니다.');
     }
 
-    const messages = await this.chatMessageRepository.findManyByRoomId(roomId);
-    if (!messages) {
-      throw new NotFoundException('채팅 메시지가 존재하지 않습니다.');
-    }
+    const { messages, hasNext, nextCursor } = await this.chatMessageRepository.findManyByRoomId({
+      roomId,
+      cursor,
+      limit,
+    });
+    messages.reverse();
 
     const members: Record<number, string> = Object.fromEntries(
       await Promise.all(
@@ -55,6 +62,8 @@ export default class ChatService {
       status: STATUS.SUCCESS,
       data: {
         chatHistory: response,
+        hasNext,
+        nextCursor,
       },
     };
   }

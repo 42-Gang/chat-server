@@ -3,6 +3,7 @@ import { FastifyInstance } from 'fastify';
 import ChatController from './chat.controller.js';
 import {
   getMessagesParamsSchema,
+  getMessagesQuerySchema,
   getMessagesResponseSchema,
 } from './schemas/get-messages.schema.js';
 import { addRoutes, Route } from '../../plugins/router.js';
@@ -20,6 +21,7 @@ export default async function chatRoutes(fastify: FastifyInstance) {
           tags: ['chat'],
           description: '메세지 불러오기',
           params: getMessagesParamsSchema,
+          querystring: getMessagesQuerySchema,
           response: {
             200: getMessagesResponseSchema,
           },
